@@ -1,0 +1,446 @@
+"""
+Complaint Analytics Dashboard - Streamlit Frontend
+Talks directly to the SQLite database (no backend required)
+"""
+from __future__ import annotations
+
+import sqlite3
+from datetime import date, datetime
+from pathlib import Path
+
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import streamlit as st
+
+# ── Paths ──────────────────────────────────────────────────────────────────────
+BASE_DIR = Path(__file__).resolve().parents[1]
+DB_PATH  = BASE_DIR / "data" / "complaints.db"
+CSV_PATH = BASE_DIR / "data" / "sample_complaints.csv"
+
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "admin123"
+
+st.set_page_config(
+    page_title="Complaint Analytics Dashboard",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+# ── Global Styles ──────────────────────────────────────────────────────────────
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+.stApp { background: #0b0f1a; color: #f1f5f9; }
+.main .block-container { padding: 1.5rem 2rem !important; max-width: 100% !important; }
+section[data-testid="stSidebar"] { background: linear-gradient(180deg, #0d1117 0%, #111827 100%); border-right: 1px solid rgba(99,102,241,0.2); }
+section[data-testid="stSidebar"] * { color: #e2e8f0 !important; }
+.page-header { background: linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.08) 100%); border: 1px solid rgba(99,102,241,0.2); border-radius: 20px; padding: 24px 28px; margin-bottom: 28px; }
+.page-header-title { font-size: 1.8rem; font-weight: 800; color: #f1f5f9; margin-bottom: 4px; display:flex; align-items:center; gap:10px; }
+.page-header-sub { font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px; }
+.header-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.header-badge { background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); border-radius: 50px; padding: 4px 12px; font-size: 0.72rem; color: #a5b4fc; font-weight: 600; display:inline-flex; align-items:center; gap:5px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 28px; }
+.kpi-card { background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px 16px; position: relative; overflow: hidden; transition: transform .2s; }
+.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent, linear-gradient(90deg, #6366f1, #8b5cf6)); }
+.kpi-card:hover { transform: translateY(-3px); }
+.kpi-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:10px; background: var(--icon-bg, rgba(99,102,241,0.15)); }
+.kpi-icon svg { display:block; }
+.kpi-label { font-size: 0.68rem; color: #64748b; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; display: block; }
+.kpi-value { font-size: 1.75rem; font-weight: 800; line-height: 1.15; margin-top: 6px; display: block; }
+.kpi-sub { font-size: 0.68rem; color: #475569; margin-top: 6px; display: block; }
+.progress-bar-wrap { background: rgba(255,255,255,0.06); border-radius: 99px; height: 6px; overflow: hidden; margin-top: 10px; }
+.progress-bar-fill { height: 100%; border-radius: 99px; }
+.stTabs [data-baseweb="tab-list"] { background: rgba(255,255,255,0.04); border-radius: 12px; padding: 4px; gap: 4px; border: 1px solid rgba(255,255,255,0.06); }
+.stTabs [data-baseweb="tab"] { border-radius: 8px; color: #94a3b8; font-weight: 600; font-size: 0.85rem; padding: 8px 18px; }
+.stTabs [aria-selected="true"] { background: linear-gradient(135deg, #6366f1, #8b5cf6) !important; color: white !important; }
+.stButton > button { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 10px; font-weight: 600; padding: 10px 22px; }
+.section-title { display:flex; align-items:center; gap:8px; font-size:1rem; font-weight:700; color:#e2e8f0; margin-bottom:4px; }
+.sidebar-section { display:flex; align-items:center; gap:7px; font-size:0.9rem; font-weight:700; color:#a5b4fc; margin:12px 0 8px 0; }</style>
+""", unsafe_allow_html=True)
+
+# ── Session State ──────────────────────────────────────────────────────────────
+if "is_admin"        not in st.session_state: st.session_state.is_admin        = False
+if "login_step"      not in st.session_state: st.session_state.login_step      = 0   # 0=closed, 1=username, 2=password
+if "login_uid_input" not in st.session_state: st.session_state.login_uid_input = ""
+if "drawer_open"     not in st.session_state: st.session_state.drawer_open     = False
+
+# ── DB Helpers ─────────────────────────────────────────────────────────────────
+def get_connection() -> sqlite3.Connection:
+    conn = sqlite3.connect(str(DB_PATH), check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA synchronous=NORMAL")
+    return conn
+
+
+def init_db() -> None:
+    DB_PATH.parent.mkdir(exist_ok=True)
+    with get_connection() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS complaints (
+                id           TEXT PRIMARY KEY,
+                created_date TEXT NOT NULL,
+                closed_date  TEXT,
+                area         TEXT NOT NULL,
+                category     TEXT NOT NULL,
+                priority     TEXT,
+                status       TEXT NOT NULL DEFAULT 'Pending',
+                description  TEXT NOT NULL
+            )
+        """)
+        count = conn.execute("SELECT COUNT(*) FROM complaints").fetchone()[0]
+        if count == 0 and CSV_PATH.exists():
+            pd.read_csv(CSV_PATH).to_sql("complaints", conn, if_exists="append", index=False)
+
+
+init_db()
+
+
+@st.cache_data(ttl=30)
+def load_all() -> pd.DataFrame:
+    with get_connection() as conn:
+        df = pd.read_sql_query("SELECT * FROM complaints", conn)
+    df["created_date"] = pd.to_datetime(df["created_date"], errors="coerce")
+    df["closed_date"]  = pd.to_datetime(df["closed_date"],  errors="coerce")
+    df["closure_days"] = (df["closed_date"] - df["created_date"]).dt.days
+    return df
+
+
+def filter_df(df, start, end, area, category, status):
+    f = df.copy()
+    f = f[f["created_date"].dt.date >= start]
+    f = f[f["created_date"].dt.date <= end]
+    if area     != "All": f = f[f["area"]     == area]
+    if category != "All": f = f[f["category"] == category]
+    if status   != "All": f = f[f["status"]   == status]
+    return f.sort_values("created_date", ascending=False)
+
+
+def _refresh():
+    st.cache_data.clear()
+
+# ── Sidebar ────────────────────────────────────────────────────────────────────
+with st.sidebar:
+    st.markdown('## 📊 Analytics Dashboard')
+    st.markdown("---")
+
+    all_df = load_all()
+    areas      = sorted(all_df["area"].dropna().unique().tolist())
+    categories = sorted(all_df["category"].dropna().unique().tolist())
+    statuses   = sorted(all_df["status"].dropna().unique().tolist())
+
+    st.markdown("### 🔍 Filters")
+    start_date = st.date_input("Start Date", value=date(2025, 1, 1))
+    end_date   = st.date_input("End Date",   value=date.today())
+
+    if start_date > end_date:
+        st.warning("Start date is after end date")
+
+    sel_area     = st.selectbox("Area",     ["All", *areas])
+    sel_category = st.selectbox("Category", ["All", *categories])
+    sel_status   = st.selectbox("Status",   ["All", *statuses])
+
+    apply = st.button("🔍 Apply Filters", use_container_width=True)
+
+    st.markdown("---")
+
+    if st.session_state.is_admin:
+        st.success("🔓 Admin mode active")
+        if st.button("Logout", use_container_width=True):
+            st.session_state.is_admin    = False
+            st.session_state.login_step  = 0
+            st.session_state.drawer_open = False
+            st.rerun()
+    elif st.session_state.login_step == 1:
+        st.markdown("### 🔐 Admin Login")
+        uid = st.text_input("Username", placeholder="Enter username", key="uid_field")
+        c1, c2 = st.columns(2)
+        with c1:
+            if st.button("Next →", use_container_width=True, key="uid_next"):
+                if uid.strip() == ADMIN_USERNAME:
+                    st.session_state.login_uid_input = uid.strip()
+                    st.session_state.login_step = 2
+                    st.rerun()
+                else:
+                    st.error("Username not found")
+        with c2:
+            if st.button("Cancel", use_container_width=True, key="uid_cancel"):
+                st.session_state.login_step = 0
+                st.rerun()
+    elif st.session_state.login_step == 2:
+        st.markdown(f"### 🔑 Hi, {st.session_state.login_uid_input}")
+        pwd = st.text_input("Password", type="password", placeholder="Enter password", key="pwd_field")
+        c1, c2 = st.columns(2)
+        with c1:
+            if st.button("Login", use_container_width=True, key="pwd_login"):
+                if pwd == ADMIN_PASSWORD:
+                    st.session_state.is_admin    = True
+                    st.session_state.login_step  = 0
+                    st.session_state.drawer_open = True
+                    st.rerun()
+                else:
+                    st.error("Incorrect password")
+        with c2:
+            if st.button("← Back", use_container_width=True, key="pwd_back"):
+                st.session_state.login_step = 1
+                st.rerun()
+    else:
+        if st.button("🔐 Admin Login", use_container_width=True):
+            st.session_state.login_step = 1
+            st.rerun()
+
+# ── Filtered Data ──────────────────────────────────────────────────────────────
+# Store last applied filter values in session state
+if "applied_filters" not in st.session_state:
+    st.session_state.applied_filters = {
+        "start_date": start_date,
+        "end_date": end_date,
+        "area": sel_area,
+        "category": sel_category,
+        "status": sel_status,
+    }
+
+if apply:
+    st.session_state.applied_filters = {
+        "start_date": start_date,
+        "end_date": end_date,
+        "area": sel_area,
+        "category": sel_category,
+        "status": sel_status,
+    }
+
+af = st.session_state.applied_filters
+df = filter_df(all_df, af["start_date"], af["end_date"], af["area"], af["category"], af["status"])
+
+# ── Analytics ─────────────────────────────────────────────────────────────────
+total     = len(df)
+closed_df = df[df["status"] == "Closed"]
+open_cnt  = len(df[df["status"] != "Closed"])
+raw_avg   = closed_df["closure_days"].mean() if not closed_df.empty else 0.0
+avg_days  = float(raw_avg) if raw_avg == raw_avg else 0.0
+rate      = round((len(closed_df) / total) * 100, 2) if total else 0.0
+rate_w    = min(int(rate), 100)
+
+trend_df = (
+    df.assign(month=df["created_date"].dt.to_period("M").astype(str))
+    .groupby("month").size().reset_index(name="complaints").sort_values("month")
+) if not df.empty else pd.DataFrame()
+
+area_df = (
+    df.groupby("area")
+    .agg(complaints=("id","count"), avg_closure_days=("closure_days","mean"))
+    .reset_index().sort_values("complaints", ascending=False)
+) if not df.empty else pd.DataFrame()
+
+category_df = (
+    df.groupby("category").size().reset_index(name="complaints")
+    .sort_values("complaints", ascending=False)
+) if not df.empty else pd.DataFrame()
+
+# ── Main Layout ────────────────────────────────────────────────────────────────
+main_col = st.container()
+
+with main_col:
+    now_str    = datetime.now().strftime("%b %d, %Y · %H:%M")
+    date_range = f"{start_date.strftime('%b %d')} → {end_date.strftime('%b %d, %Y')}"
+    admin_badge = '<span class="header-badge" style="background:rgba(99,102,241,0.3)">🔓 Admin</span>' if st.session_state.is_admin else ""
+
+    st.markdown(f"""
+<div class="page-header">
+  <div class="page-header-title">📊 Complaint Analytics</div>
+  <div class="page-header-sub">Real-time public service complaint intelligence dashboard</div>
+  <div class="header-badges">
+    <span class="header-badge">🕐 {now_str}</span>
+    <span class="header-badge">📅 {date_range}</span>
+    {admin_badge}
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+    st.markdown(f"""
+<div class="kpi-grid">
+  <div class="kpi-card" style="--accent:linear-gradient(90deg,#6366f1,#8b5cf6);--icon-bg:rgba(99,102,241,0.15)">
+    <div class="kpi-icon">📋</div>
+    <span class="kpi-label">TOTAL COMPLAINTS</span>
+    <span class="kpi-value" style="color:#f1f5f9">{total:,}</span>
+    <span class="kpi-sub">In selected range</span>
+  </div>
+  <div class="kpi-card" style="--accent:linear-gradient(90deg,#10b981,#34d399);--icon-bg:rgba(16,185,129,0.15)">
+    <div class="kpi-icon">✅</div>
+    <span class="kpi-label">CLOSED</span>
+    <span class="kpi-value" style="color:#6ee7b7">{len(closed_df):,}</span>
+    <span class="kpi-sub">Fully resolved</span>
+  </div>
+  <div class="kpi-card" style="--accent:linear-gradient(90deg,#f59e0b,#fbbf24);--icon-bg:rgba(245,158,11,0.15)">
+    <div class="kpi-icon">⏳</div>
+    <span class="kpi-label">OPEN / PENDING</span>
+    <span class="kpi-value" style="color:#fcd34d">{open_cnt:,}</span>
+    <span class="kpi-sub">Awaiting resolution</span>
+  </div>
+  <div class="kpi-card" style="--accent:linear-gradient(90deg,#3b82f6,#60a5fa);--icon-bg:rgba(59,130,246,0.15)">
+    <div class="kpi-icon">⏱️</div>
+    <span class="kpi-label">AVG CLOSURE TIME</span>
+    <span class="kpi-value" style="color:#93c5fd">{avg_days:.1f} <span style="font-size:0.9rem;color:#64748b">days</span></span>
+    <span class="kpi-sub">To close</span>
+  </div>
+  <div class="kpi-card" style="--accent:linear-gradient(90deg,#8b5cf6,#a78bfa);--icon-bg:rgba(139,92,246,0.15)">
+    <div class="kpi-icon">📈</div>
+    <span class="kpi-label">CLOSURE RATE</span>
+    <span class="kpi-value" style="color:#c4b5fd">{rate:.1f}<span style="font-size:0.9rem;color:#64748b">%</span></span>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:{rate_w}%;background:linear-gradient(90deg,#8b5cf6,#a78bfa)"></div></div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+    CHART_LAYOUT = dict(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#94a3b8", size=11),
+        margin=dict(l=10, r=10, t=36, b=10),
+        legend=dict(bgcolor="rgba(0,0,0,0)"),
+    )
+
+    tab_overview, tab_records, tab_submit = st.tabs(["📊 Overview", "📋 Records", "➕ Submit"])
+
+    with tab_overview:
+        col1, col2 = st.columns(2)
+        with col1:
+            st.subheader("📈 Monthly Trend")
+            if not trend_df.empty:
+                fig = go.Figure(go.Scatter(
+                    x=trend_df["month"], y=trend_df["complaints"],
+                    mode="lines+markers", line=dict(color="#6366f1", width=2.5),
+                    marker=dict(size=7, color="#8b5cf6"),
+                    fill="tozeroy", fillcolor="rgba(99,102,241,0.1)"
+                ))
+                fig.update_layout(**CHART_LAYOUT, height=280)
+                st.plotly_chart(fig, use_container_width=True)
+        with col2:
+            st.subheader("🗂️ Category Distribution")
+            if not category_df.empty:
+                fig = go.Figure(go.Pie(
+                    labels=category_df["category"], values=category_df["complaints"],
+                    hole=0.6, marker=dict(colors=["#6366f1","#8b5cf6","#a78bfa","#c4b5fd"])
+                ))
+                fig.update_layout(**CHART_LAYOUT, height=280)
+                st.plotly_chart(fig, use_container_width=True)
+
+        col3, col4 = st.columns(2)
+        with col3:
+            st.subheader("🏙️ Complaints by Area")
+            if not area_df.empty:
+                sorted_area = area_df.sort_values("complaints")
+                AREA_PALETTE = [
+                    "#6366f1","#8b5cf6","#a78bfa","#c4b5fd",
+                    "#3b82f6","#60a5fa","#10b981","#34d399",
+                    "#f59e0b","#fbbf24","#ef4444","#f87171",
+                    "#ec4899","#f472b6","#14b8a6","#2dd4bf",
+                ]
+                n = len(sorted_area)
+                bar_colors = [AREA_PALETTE[i % len(AREA_PALETTE)] for i in range(n)]
+                fig = go.Figure(go.Bar(
+                    x=sorted_area["complaints"], y=sorted_area["area"],
+                    orientation="h", marker=dict(color=bar_colors),
+                    text=sorted_area["complaints"], textposition="outside",
+                    textfont=dict(color="#94a3b8", size=11),
+                ))
+                fig.update_layout(**CHART_LAYOUT, height=max(280, n * 36))
+                st.plotly_chart(fig, use_container_width=True)
+        with col4:
+            st.subheader("⏱️ Avg Closure Days")
+            if not area_df.empty and "avg_closure_days" in area_df.columns:
+                plot_df = area_df.dropna(subset=["avg_closure_days"])
+                fig = go.Figure(go.Bar(
+                    x=plot_df["area"], y=plot_df["avg_closure_days"],
+                    marker=dict(color=plot_df["avg_closure_days"], colorscale="RdYlGn_r")
+                ))
+                fig.update_layout(**CHART_LAYOUT, height=280)
+                st.plotly_chart(fig, use_container_width=True)
+
+    with tab_records:
+        st.subheader("📋 Complaint Records")
+        display_df = df.drop(columns=["closure_days"], errors="ignore").copy()
+        for col in ["created_date", "closed_date"]:
+            if col in display_df.columns:
+                display_df[col] = display_df[col].dt.strftime("%Y-%m-%d")
+        if not display_df.empty:
+            st.dataframe(display_df, use_container_width=True, height=400)
+            csv_data = display_df.to_csv(index=False).encode("utf-8")
+            st.download_button("⬇️ Export CSV", data=csv_data, file_name="complaints_export.csv", mime="text/csv")
+        else:
+            st.info("No complaints match filters")
+
+    with tab_submit:
+        st.subheader("➕ Register New Complaint")
+        with st.form("new_complaint"):
+            c1, c2, c3 = st.columns(3)
+            new_id       = c1.text_input("ID", value=f"CMP-{datetime.now().strftime('%H%M%S')}")
+            new_area     = c2.selectbox("Area", areas)
+            new_category = c3.selectbox("Category", categories)
+            new_date     = st.date_input("Date", value=date.today())
+            new_desc     = st.text_area("Description", placeholder="Min 10 characters")
+            if st.form_submit_button("Submit"):
+                if len(new_desc.strip()) < 10:
+                    st.error("Description too short")
+                else:
+                    try:
+                        with get_connection() as conn:
+                            conn.execute(
+                                "INSERT INTO complaints (id, created_date, area, category, status, description) VALUES (?,?,?,?,?,?)",
+                                (new_id.strip(), new_date.isoformat(), new_area, new_category, "Pending", new_desc.strip())
+                            )
+                        st.success(f"Complaint {new_id} registered")
+                        _refresh()
+                        st.rerun()
+                    except sqlite3.IntegrityError:
+                        st.error("Complaint ID already exists")
+
+# ── Admin Panel (below dashboard when logged in) ───────────────────────────────
+if st.session_state.is_admin:
+    st.markdown("---")
+    st.subheader("🛠️ Admin Panel")
+
+    tab_update, tab_delete = st.tabs(["✏️ Update Complaint", "🗑️ Delete Complaint"])
+
+    with tab_update:
+        if not df.empty:
+            sel_id = st.selectbox("Select Complaint", df["id"].tolist(), key="adm_sel")
+            row    = df[df["id"] == sel_id].iloc[0]
+            u1, u2, u3 = st.columns(3)
+            upd_status   = u1.selectbox("Status", ["Pending", "In Progress", "Closed"],
+                                        index=["Pending", "In Progress", "Closed"].index(row.get("status", "Pending")), key="adm_status")
+            upd_priority = u2.selectbox("Priority", ["Low", "Medium", "High"], key="adm_pri")
+            upd_area     = u3.selectbox("Area", areas, index=areas.index(row["area"]), key="adm_area")
+            upd_category = st.selectbox("Category", categories, index=categories.index(row["category"]), key="adm_cat")
+            upd_closed   = st.date_input("Closed Date", value=date.today(), key="adm_closed") if upd_status == "Closed" else None
+            upd_desc     = st.text_area("Description", value=row.get("description", ""), key="adm_desc")
+            if st.button("💾 Save Changes", use_container_width=True, key="adm_save"):
+                closed_val = upd_closed.isoformat() if upd_closed else None
+                with get_connection() as conn:
+                    conn.execute(
+                        "UPDATE complaints SET status=?, priority=?, area=?, category=?, closed_date=?, description=? WHERE id=?",
+                        (upd_status, upd_priority, upd_area, upd_category, closed_val, upd_desc, sel_id)
+                    )
+                st.success(f"✅ Updated {sel_id}")
+                _refresh()
+                st.rerun()
+        else:
+            st.info("No complaints available.")
+
+    with tab_delete:
+        if not df.empty:
+            del_id = st.selectbox("Select to Delete", df["id"].tolist(), key="adm_del")
+            st.warning(f"This will permanently delete **{del_id}**.")
+            if st.button("🗑️ Confirm Delete", type="primary", use_container_width=True, key="adm_del_btn"):
+                with get_connection() as conn:
+                    conn.execute("DELETE FROM complaints WHERE id = ?", (del_id,))
+                st.success(f"Deleted {del_id}")
+                _refresh()
+                st.rerun()
+        else:
+            st.info("No complaints available.")
+
+
