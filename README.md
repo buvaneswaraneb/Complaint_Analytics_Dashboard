@@ -103,6 +103,8 @@ The admin panel allows updating and deleting complaint records.
 
 This project is licensed under the [MIT License](LICENSE).
 
+---
+
 ## 👤 Author
 
 **Adithyan KS**
