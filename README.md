@@ -1,19 +1,24 @@
 # 📊 Complaint Analytics Dashboard
 
-A real-time public service complaint intelligence dashboard built with **Streamlit**, **Plotly**, and **SQLite**. Visualize complaint trends, track resolution rates, and manage records — all without a backend server.
+A professional, full-stack real-time public service complaint intelligence dashboard. This application features a **FastAPI backend** hosted on **Vercel** and a **Streamlit frontend** hosted on **Streamlit Community Cloud**.
+
+---
+
+## 🚀 Live Production Links
+
+- **Dashboard (Frontend):** [https://complaintanalyticsdashboard.streamlit.app/](https://complaintanalyticsdashboard.streamlit.app/)
+- **API (Backend):** [https://complaint-analytics-dashboard-k20j.vercel.app/docs](https://complaint-analytics-dashboard-k20j.vercel.app/docs)
 
 ---
 
 ## ✨ Features
 
-- **KPI Cards** — Total complaints, closed count, open/pending, average closure time, and closure rate
-- **Interactive Charts** — Monthly trend, category distribution (donut), complaints by area (colored bars), avg closure days
-- **Smart Filters** — Filter by date range, area, category, and status with an Apply button
-- **Complaint Submission** — Register new complaints directly from the dashboard
-- **Admin Panel** — Secure 2-step login (username + password) to update or delete complaints
-- **Auto Refresh** — Dashboard updates automatically after every admin or user action
-- **CSV Export** — Download filtered complaint records as a CSV file
-- **Direct SQLite** — No backend API required; reads and writes directly to the database
+- **Professional UI/UX** — Modern SVG icons and Mac-style hover zoom effects on KPI cards.
+- **FastAPI Integration** — Robust backend logic for data management and analytics.
+- **KPI Cards** — Real-time metrics for total complaints, closure rates, and average resolution times.
+- **Interactive Charts** — Visualized trends using Plotly (Monthly trends, category distribution, area summaries).
+- **Secure Admin Panel** — Snappy, 2-step authentication (Username + Password) with auto-advance transitions.
+- **Resilient Architecture** — Hybrid data loading (Vercel API with local SQLite fallback for high availability).
 
 ---
 
@@ -21,34 +26,12 @@ A real-time public service complaint intelligence dashboard built with **Streaml
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | [Streamlit](https://streamlit.io/) |
-| Charts | [Plotly](https://plotly.com/python/) |
-| Database | SQLite (via Python `sqlite3`) |
-| Data | [Pandas](https://pandas.pydata.org/) |
-| Styling | Custom CSS + Inter font |
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Python 3.9+
-
-### Installation
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/adithyanks2005/Complaint_Analytics_Dashboard.git
-cd Complaint_Analytics_Dashboard
-
-# 2. Run the setup script (creates venv and installs dependencies)
-setup.bat
-
-# 3. Launch the dashboard
-run_dashboard.bat
-```
-
-The dashboard will open at `http://localhost:8501`
+| **Frontend** | [Streamlit](https://streamlit.io/) |
+| **Backend** | [FastAPI](https://fastapi.tiangolo.com/) |
+| **Deployment** | [Vercel](https://vercel.com/) & [Streamlit Cloud](https://streamlit.io/cloud) |
+| **Charts** | [Plotly](https://plotly.com/python/) |
+| **Database** | SQLite |
+| **Styling** | Custom CSS + Inter Google Font |
 
 ---
 
@@ -56,20 +39,17 @@ The dashboard will open at `http://localhost:8501`
 
 ```
 Complaint_Analytics_Dashboard/
-├── frontend/
-│   └── streamlit_app.py      # Main Streamlit application
+├── api/
+│   └── index.py              # Vercel Serverless Entry Point
 ├── backend/
-│   ├── main.py               # FastAPI backend (optional)
-│   ├── analytics.py          # Analytics logic
-│   └── database.py           # Database helpers
+│   ├── main.py               # FastAPI application core
+│   ├── analytics.py          # Business intelligence logic
+│   └── database.py           # Database management (SQLite)
 ├── data/
-│   └── sample_complaints.csv # Seed data
-├── tests/
-│   └── test_api.py           # API tests
-├── run_dashboard.bat         # Launch dashboard
-├── run_backend.bat           # Launch backend (optional)
-├── setup.bat                 # Environment setup
-└── requirements.txt          # Python dependencies
+│   └── sample_complaints.csv # Initial seed data
+├── streamlit_app.py          # Main Streamlit Dashboard (Production)
+├── requirements.txt          # Python dependencies
+└── vercel.json               # Vercel deployment configuration
 ```
 
 ---
@@ -83,32 +63,11 @@ The admin panel allows updating and deleting complaint records.
 | Username | `admin` |
 | Password | `admin123` |
 
-> To change credentials, update `ADMIN_USERNAME` and `ADMIN_PASSWORD` in `frontend/streamlit_app.py`.
-
----
-
-## 📸 Dashboard Preview
-
-| Section | Description |
-|---------|-------------|
-| KPI Cards | 5 metric cards at the top |
-| Overview Tab | 4 interactive Plotly charts |
-| Records Tab | Filterable data table with CSV export |
-| Submit Tab | Form to register new complaints |
-| Admin Panel | Update/delete complaints (admin only) |
-
----
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
-
 ---
 
 ## 👤 Author
 
 **Adithyan KS**
-
 - GitHub: [@adithyanks2005](https://github.com/adithyanks2005)
 
 ---
