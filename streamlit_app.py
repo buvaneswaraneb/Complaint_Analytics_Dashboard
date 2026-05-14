@@ -63,33 +63,34 @@ section[data-testid="stSidebar"] * { color: #e2e8f0 !important; }
 .header-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .header-badge { background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); border-radius: 50px; padding: 4px 12px; font-size: 0.72rem; color: #a5b4fc; font-weight: 600; display:inline-flex; align-items:center; gap:5px; transition: transform 0.2s ease, background 0.2s ease; cursor: pointer; }
 .header-badge:hover { transform: scale(1.1); background: rgba(99,102,241,0.4); }
-.kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 28px; padding: 15px 5px; overflow: visible !important; }
-div[data-testid="stVerticalBlock"] > div:has(.kpi-grid) { overflow: visible !important; }
+.kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 32px; padding: 10px 0; }
 .kpi-card { 
-  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%); 
-  background-color: var(--tint, transparent);
-  border: 1px solid rgba(255,255,255,0.12); 
-  border-radius: 20px; 
-  padding: 24px 20px; 
-  position: relative; 
-  overflow: hidden; 
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-  box-shadow: inset 0 2px 0 0 var(--accent);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08); 
+  border-left: 4px solid var(--accent);
+  border-radius: 12px; 
+  padding: 20px; 
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s ease;
+  position: relative;
 }
 .kpi-card:hover { 
-  transform: scale(1.1) translateY(-10px); 
-  z-index: 100; 
-  box-shadow: inset 0 2px 0 0 var(--accent), 0 20px 40px rgba(0,0,0,0.4), 0 0 20px var(--glow); 
+  background: rgba(255,255,255,0.06);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.4), 0 0 15px var(--glow);
 }
 .kpi-icon { 
-  width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:12px; 
-  background: var(--accent); color: white; font-size: 1.2rem;
-  box-shadow: 0 4px 12px var(--glow);
+  width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; 
+  background: var(--icon-bg, rgba(255,255,255,0.05)); 
+  font-size: 1.4rem; flex-shrink: 0;
 }
-.kpi-label { font-size: 0.68rem; color: #94a3b8; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; display: block; }
-.kpi-value { font-size: 1.85rem; font-weight: 800; line-height: 1.15; margin-top: 6px; display: block; color: white; }
-.kpi-sub { font-size: 0.72rem; color: #64748b; margin-top: 8px; display: block; }
-.progress-bar-wrap { background: rgba(255,255,255,0.06); border-radius: 99px; height: 6px; overflow: hidden; margin-top: 12px; }
+.kpi-content { flex: 1; min-width: 0; }
+.kpi-label { font-size: 0.72rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.kpi-value { font-size: 1.6rem; font-weight: 800; color: white; display: block; margin: 2px 0; }
+.kpi-sub { font-size: 0.7rem; color: #64748b; }
+.progress-bar-wrap { background: rgba(255,255,255,0.06); border-radius: 99px; height: 4px; margin-top: 8px; }
 .progress-bar-fill { height: 100%; border-radius: 99px; }
 .stTabs [data-baseweb="tab-list"] { 
   background: rgba(255,255,255,0.05); 
@@ -337,35 +338,45 @@ with main_col:
 
     st.markdown(f"""
 <div class="kpi-grid">
-  <div class="kpi-card" style="--tint:rgba(99,102,241,0.05);--accent:linear-gradient(90deg,#6366f1,#8b5cf6);--icon-bg:rgba(99,102,241,0.15);--glow:rgba(99,102,241,0.3)">
+  <div class="kpi-card" style="--accent:#6366f1;--glow:rgba(99,102,241,0.3)">
     <div class="kpi-icon">📋</div>
-    <span class="kpi-label">TOTAL COMPLAINTS</span>
-    <span class="kpi-value" style="color:#f1f5f9">{total:,}</span>
-    <span class="kpi-sub">In selected range</span>
+    <div class="kpi-content">
+      <span class="kpi-label">TOTAL</span>
+      <span class="kpi-value">{total:,}</span>
+      <span class="kpi-sub">Complaints</span>
+    </div>
   </div>
-  <div class="kpi-card" style="--tint:rgba(16,185,129,0.05);--accent:linear-gradient(90deg,#10b981,#34d399);--icon-bg:rgba(16,185,129,0.15);--glow:rgba(16,185,129,0.3)">
+  <div class="kpi-card" style="--accent:#10b981;--glow:rgba(16,185,129,0.3)">
     <div class="kpi-icon">✅</div>
-    <span class="kpi-label">CLOSED</span>
-    <span class="kpi-value" style="color:#6ee7b7">{len(closed_df):,}</span>
-    <span class="kpi-sub">Fully resolved</span>
+    <div class="kpi-content">
+      <span class="kpi-label">CLOSED</span>
+      <span class="kpi-value">{len(closed_df):,}</span>
+      <span class="kpi-sub">Resolved</span>
+    </div>
   </div>
-  <div class="kpi-card" style="--tint:rgba(245,158,11,0.05);--accent:linear-gradient(90deg,#f59e0b,#fbbf24);--icon-bg:rgba(245,158,11,0.15);--glow:rgba(245,158,11,0.3)">
+  <div class="kpi-card" style="--accent:#f59e0b;--glow:rgba(245,158,11,0.3)">
     <div class="kpi-icon">⏳</div>
-    <span class="kpi-label">OPEN / PENDING</span>
-    <span class="kpi-value" style="color:#fcd34d">{open_cnt:,}</span>
-    <span class="kpi-sub">Awaiting resolution</span>
+    <div class="kpi-content">
+      <span class="kpi-label">PENDING</span>
+      <span class="kpi-value">{open_cnt:,}</span>
+      <span class="kpi-sub">Awaiting</span>
+    </div>
   </div>
-  <div class="kpi-card" style="--tint:rgba(59,130,246,0.05);--accent:linear-gradient(90deg,#3b82f6,#60a5fa);--icon-bg:rgba(59,130,246,0.15);--glow:rgba(59,130,246,0.3)">
+  <div class="kpi-card" style="--accent:#3b82f6;--glow:rgba(59,130,246,0.3)">
     <div class="kpi-icon">⏱️</div>
-    <span class="kpi-label">AVG CLOSURE TIME</span>
-    <span class="kpi-value" style="color:#93c5fd">{avg_days:.1f} <span style="font-size:0.9rem;color:#64748b">days</span></span>
-    <span class="kpi-sub">To close</span>
+    <div class="kpi-content">
+      <span class="kpi-label">AVG TIME</span>
+      <span class="kpi-value">{avg_days:.1f} <span style="font-size:0.8rem">days</span></span>
+      <span class="kpi-sub">Closure</span>
+    </div>
   </div>
-  <div class="kpi-card" style="--tint:rgba(139,92,246,0.05);--accent:linear-gradient(90deg,#8b5cf6,#a78bfa);--icon-bg:rgba(139,92,246,0.15);--glow:rgba(139,92,246,0.3)">
+  <div class="kpi-card" style="--accent:#8b5cf6;--glow:rgba(139,92,246,0.3)">
     <div class="kpi-icon">📈</div>
-    <span class="kpi-label">CLOSURE RATE</span>
-    <span class="kpi-value" style="color:#c4b5fd">{rate:.1f}<span style="font-size:0.9rem;color:#64748b">%</span></span>
-    <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:{rate_w}%;background:linear-gradient(90deg,#8b5cf6,#a78bfa)"></div></div>
+    <div class="kpi-content">
+      <span class="kpi-label">RATE</span>
+      <span class="kpi-value">{rate:.1f}%</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:{rate_w}%;background:#8b5cf6"></div></div>
+    </div>
   </div>
 </div>
 """, unsafe_allow_html=True)

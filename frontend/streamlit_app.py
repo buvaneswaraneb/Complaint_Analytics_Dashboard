@@ -78,76 +78,37 @@ section[data-testid="stSidebar"] * { color: #e2e8f0 !important; }
 }
 .header-badge svg { flex-shrink: 0; }
 
-/* macOS Dock KPI Grid */
-.kpi-grid {
+/* KPI Grid */
+.kpi-grid { display: flex; gap: 16px; margin-bottom: 32px; padding: 10px 0; align-items: stretch; justify-content: center; overflow: visible !important; }
+.kpi-card { 
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08); 
+  border-left: 4px solid var(--accent);
+  border-radius: 12px; 
+  padding: 20px; 
   display: flex;
-  gap: 12px;
-  margin-bottom: 28px;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 16px;
-  padding-top: 35px;
-  overflow: visible !important;
-}
-div[data-testid="stVerticalBlock"] > div:has(.kpi-grid) { overflow: visible !important; }
-.kpi-card {
-  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
-  background-color: var(--tint, transparent);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 20px;
-  padding: 24px 20px;
-  position: relative;
-  overflow: hidden;
+  align-items: center;
+  gap: 16px;
   flex: 1;
   min-width: 0;
-  cursor: default;
-  z-index: 1;
-  box-shadow: inset 0 2px 0 0 var(--accent);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  transform-origin: bottom center;
-  will-change: transform, filter;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: visible;
 }
-/* macOS Dock magnification — all cards shrink when grid is hovered */
-.kpi-grid:hover .kpi-card {
-  transform: scale(0.93) translateY(4px);
-  filter: brightness(0.68);
+.kpi-card:hover { 
+  background: rgba(255,255,255,0.06);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.4), 0 0 15px var(--glow);
 }
-/* hovered card pops up */
-.kpi-grid:hover .kpi-card:hover {
-  transform: scale(1.22) translateY(-14px);
-  filter: brightness(1);
-  z-index: 20;
-  box-shadow:
-    inset 0 2px 0 0 var(--accent),
-    0 24px 64px rgba(0,0,0,0.55),
-    0 0 0 1px rgba(255,255,255,0.13),
-    0 8px 32px var(--glow, rgba(99,102,241,0.3));
-}
-/* immediate neighbours */
-.kpi-grid:hover .kpi-card:hover + .kpi-card,
-.kpi-grid:hover .kpi-card:has(+ .kpi-card:hover) {
-  transform: scale(1.10) translateY(-7px);
-  filter: brightness(0.88);
-  z-index: 10;
-}
-/* second-degree neighbours */
-.kpi-grid:hover .kpi-card:hover + .kpi-card + .kpi-card,
-.kpi-grid:hover .kpi-card:has(+ .kpi-card + .kpi-card:hover) {
-  transform: scale(1.04) translateY(-3px);
-  filter: brightness(0.80);
-  z-index: 5;
-}
-
-/* KPI internals */
 .kpi-icon { 
-  width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:12px; 
-  background: var(--accent); color: white; flex-shrink: 0;
-  box-shadow: 0 4px 12px var(--glow);
+  width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; 
+  background: var(--icon-bg, rgba(255,255,255,0.05)); 
+  font-size: 1.4rem; flex-shrink: 0;
 }
-.kpi-icon svg { display:block; width:22px; height:22px; stroke: white !important; }
-.kpi-label { font-size: 0.68rem; color: #94a3b8; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; display: block; }
-.kpi-value { font-size: 1.85rem; font-weight: 800; line-height: 1.15; margin-top: 6px; display: block; color: white; }
-.kpi-sub { font-size: 0.72rem; color: #64748b; margin-top: 8px; display: block; }
+.kpi-content { flex: 1; min-width: 0; }
+.kpi-label { font-size: 0.72rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.kpi-value { font-size: 1.6rem; font-weight: 800; color: white; display: block; margin: 2px 0; }
+.kpi-sub { font-size: 0.7rem; color: #64748b; }
 .progress-bar-wrap { background: rgba(255,255,255,0.06); border-radius: 99px; height: 6px; overflow: hidden; margin-top: 10px; }
 .progress-bar-fill { height: 100%; border-radius: 99px; }
 
@@ -407,64 +368,45 @@ with main_col:
 
     st.markdown(f"""
 <div class="kpi-grid">
-  <div class="kpi-card" style="--tint:rgba(99,102,241,0.05);--accent:linear-gradient(90deg,#6366f1,#8b5cf6);--icon-bg:rgba(99,102,241,0.15);--glow:rgba(99,102,241,0.35)">
-    <div class="kpi-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
-        <rect x="9" y="3" width="6" height="4" rx="1"/>
-        <line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/>
-      </svg>
+  <div class="kpi-card" style="--accent:#6366f1;--glow:rgba(99,102,241,0.3)">
+    <div class="kpi-icon">📋</div>
+    <div class="kpi-content">
+      <span class="kpi-label">TOTAL</span>
+      <span class="kpi-value">{total:,}</span>
+      <span class="kpi-sub">Complaints</span>
     </div>
-    <span class="kpi-label">TOTAL COMPLAINTS</span>
-    <span class="kpi-value" style="color:#f1f5f9">{total:,}</span>
-    <span class="kpi-sub">In selected range</span>
   </div>
-  <div class="kpi-card" style="--tint:rgba(16,185,129,0.05);--accent:linear-gradient(90deg,#10b981,#34d399);--icon-bg:rgba(16,185,129,0.15);--glow:rgba(16,185,129,0.35)">
-    <div class="kpi-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
-        <polyline points="22 4 12 14.01 9 11.01"/>
-      </svg>
+  <div class="kpi-card" style="--accent:#10b981;--glow:rgba(16,185,129,0.3)">
+    <div class="kpi-icon">✅</div>
+    <div class="kpi-content">
+      <span class="kpi-label">CLOSED</span>
+      <span class="kpi-value">{len(closed_df):,}</span>
+      <span class="kpi-sub">Resolved</span>
     </div>
-    <span class="kpi-label">CLOSED</span>
-    <span class="kpi-value" style="color:#6ee7b7">{len(closed_df):,}</span>
-    <span class="kpi-sub">Fully resolved</span>
   </div>
-  <div class="kpi-card" style="--tint:rgba(245,158,11,0.05);--accent:linear-gradient(90deg,#f59e0b,#fbbf24);--icon-bg:rgba(245,158,11,0.15);--glow:rgba(245,158,11,0.35)">
-    <div class="kpi-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#fcd34d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <polyline points="12 6 12 12 16 14"/>
-      </svg>
+  <div class="kpi-card" style="--accent:#f59e0b;--glow:rgba(245,158,11,0.3)">
+    <div class="kpi-icon">⏳</div>
+    <div class="kpi-content">
+      <span class="kpi-label">PENDING</span>
+      <span class="kpi-value">{open_cnt:,}</span>
+      <span class="kpi-sub">Awaiting</span>
     </div>
-    <span class="kpi-label">OPEN / PENDING</span>
-    <span class="kpi-value" style="color:#fcd34d">{open_cnt:,}</span>
-    <span class="kpi-sub">Awaiting resolution</span>
   </div>
-  <div class="kpi-card" style="--tint:rgba(59,130,246,0.05);--accent:linear-gradient(90deg,#3b82f6,#60a5fa);--icon-bg:rgba(59,130,246,0.15);--glow:rgba(59,130,246,0.35)">
-    <div class="kpi-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="4" width="18" height="18" rx="2"/>
-        <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-        <line x1="3" y1="10" x2="21" y2="10"/>
-        <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>
-      </svg>
+  <div class="kpi-card" style="--accent:#3b82f6;--glow:rgba(59,130,246,0.3)">
+    <div class="kpi-icon">⏱️</div>
+    <div class="kpi-content">
+      <span class="kpi-label">AVG TIME</span>
+      <span class="kpi-value">{avg_days:.1f} <span style="font-size:0.8rem">days</span></span>
+      <span class="kpi-sub">Closure</span>
     </div>
-    <span class="kpi-label">AVG CLOSURE TIME</span>
-    <span class="kpi-value" style="color:#93c5fd">{avg_days:.1f} <span style="font-size:0.9rem;color:#64748b">days</span></span>
-    <span class="kpi-sub">To close</span>
   </div>
-  <div class="kpi-card" style="--tint:rgba(139,92,246,0.05);--accent:linear-gradient(90deg,#8b5cf6,#a78bfa);--icon-bg:rgba(139,92,246,0.15);--glow:rgba(139,92,246,0.35)">
-    <div class="kpi-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#c4b5fd" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
-        <line x1="6" y1="20" x2="6" y2="14"/>
-        <polyline points="3 7 12 2 21 7"/>
-      </svg>
+  <div class="kpi-card" style="--accent:#8b5cf6;--glow:rgba(139,92,246,0.3)">
+    <div class="kpi-icon">📈</div>
+    <div class="kpi-content">
+      <span class="kpi-label">RATE</span>
+      <span class="kpi-value">{rate:.1f}%</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:{rate_w}%;background:#8b5cf6"></div></div>
     </div>
-    <span class="kpi-label">CLOSURE RATE</span>
-    <span class="kpi-value" style="color:#c4b5fd">{rate:.1f}<span style="font-size:0.9rem;color:#64748b">%</span></span>
-    <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:{rate_w}%;background:linear-gradient(90deg,#8b5cf6,#a78bfa)"></div></div>
   </div>
 </div>
 """, unsafe_allow_html=True)
