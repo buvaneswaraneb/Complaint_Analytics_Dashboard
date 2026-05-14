@@ -317,7 +317,7 @@ with st.sidebar:
             
     elif st.session_state.login_step == 1:
         st.markdown("### 🔐 Admin Access")
-        uid = st.text_input("Admin Name", placeholder="Enter username...", key="uid_field")
+        uid = st.text_input("Admin Name", placeholder="Enter admin username...", key="uid_field", label_visibility="collapsed")
         
         # Immediate transition on Enter
         if uid:
@@ -334,7 +334,7 @@ with st.sidebar:
             
     elif st.session_state.login_step == 2:
         st.markdown(f"### 🔑 Hi, {st.session_state.login_uid_input}")
-        pwd = st.text_input("Password", type="password", placeholder="Enter password...", key="pwd_field")
+        pwd = st.text_input("Password", type="password", placeholder="Enter password...", key="pwd_field", label_visibility="collapsed")
         
         # Immediate login on Enter
         if pwd:
