@@ -1,0 +1,9 @@
+{
+  "name": "complaint-analytics-dashboard",
+  "version": "1.0.0",
+  "description": "Dummy package.json to bypass Vercel npm install errors",
+  "scripts": {
+    "build": "echo 'No build step required'",
+    "install": "echo 'No install step required'"
+  }
+}
