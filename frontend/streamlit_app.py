@@ -99,12 +99,21 @@ section[data-testid="stSidebar"] * { color: #e2e8f0 !important; }
 .section-title { display:flex; align-items:center; gap:8px; font-size:1rem; font-weight:700; color:#e2e8f0; margin-bottom:4px; }
 .sidebar-section { display:flex; align-items:center; gap:7px; font-size:0.9rem; font-weight:700; color:#a5b4fc; margin:12px 0 8px 0; }
 div[data-testid="stTextInput"] input, div[data-testid="stTextArea"] textarea, div[data-testid="stSelectbox"] div[data-baseweb="select"] { 
-  background: rgba(255,255,255,0.05) !important; 
+  background: rgba(255,255,255,0.04) !important; 
   border: 1px solid rgba(255,255,255,0.1) !important; 
-  border-radius: 12px !important; color: white !important; 
-  backdrop-filter: blur(5px);
+  border-radius: 14px !important; 
+  color: #f1f5f9 !important; 
+  backdrop-filter: blur(10px) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  outline: none !important;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.05) !important;
 }
-div[data-testid="stTextInput"] input:focus { border-color: #6366f1 !important; box-shadow: 0 0 10px rgba(99,102,241,0.3) !important; }
+div[data-testid="stTextInput"] input:focus, div[data-testid="stTextArea"] textarea:focus { 
+  border-color: #6366f1 !important; 
+  background: rgba(255,255,255,0.08) !important;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.2), 0 8px 16px rgba(0,0,0,0.2) !important;
+  outline: none !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
