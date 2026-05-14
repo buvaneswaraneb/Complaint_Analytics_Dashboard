@@ -209,6 +209,37 @@ input:-webkit-autofill {
 div[data-testid="InputInstructions"] {
     display: none !important;
 }
+
+/* No Results Styling */
+.no-results-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px dashed rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #64748b;
+    margin-top: 10px;
+    min-height: 250px;
+}
+.no-results-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+.no-results-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-bottom: 4px;
+}
+.no-results-sub {
+    font-size: 0.85rem;
+    max-width: 250px;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -438,7 +469,6 @@ with main_col:
 """, unsafe_allow_html=True)
 
     st.markdown(f"""
-    st.markdown(f"""
 <div class="kpi-grid">
   <div class="kpi-card" style="--accent:linear-gradient(90deg,#6366f1,#8b5cf6);--icon-bg:rgba(99,102,241,0.15);--glow:rgba(99,102,241,0.35)">
     <div class="kpi-icon">
@@ -527,6 +557,15 @@ with main_col:
                 ))
                 fig.update_layout(**CHART_LAYOUT, height=280)
                 st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.markdown("""
+                <div class="no-results-card">
+                    <div class="no-results-icon">📈</div>
+                    <div class="no-results-title">No Trend Data</div>
+                    <div class="no-results-sub">Adjust your filters to see monthly complaint trends</div>
+                </div>
+                """, unsafe_allow_html=True)
+
         with col2:
             st.subheader("Category Distribution")
             if not category_df.empty:
@@ -536,6 +575,14 @@ with main_col:
                 ))
                 fig.update_layout(**CHART_LAYOUT, height=280)
                 st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.markdown("""
+                <div class="no-results-card">
+                    <div class="no-results-icon">🗂️</div>
+                    <div class="no-results-title">No Category Data</div>
+                    <div class="no-results-sub">No categories found in the selected range</div>
+                </div>
+                """, unsafe_allow_html=True)
 
         col3, col4 = st.columns(2)
         with col3:
@@ -558,16 +605,42 @@ with main_col:
                 ))
                 fig.update_layout(**CHART_LAYOUT, height=max(280, n * 36))
                 st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.markdown("""
+                <div class="no-results-card">
+                    <div class="no-results-icon">🏙️</div>
+                    <div class="no-results-title">No Area Data</div>
+                    <div class="no-results-sub">No area distribution available for these filters</div>
+                </div>
+                """, unsafe_allow_html=True)
+
         with col4:
             st.subheader("Avg Closure Days")
             if not area_df.empty and "avg_closure_days" in area_df.columns:
                 plot_df = area_df.dropna(subset=["avg_closure_days"])
-                fig = go.Figure(go.Bar(
-                    x=plot_df["area"], y=plot_df["avg_closure_days"],
-                    marker=dict(color=plot_df["avg_closure_days"], colorscale="RdYlGn_r")
-                ))
-                fig.update_layout(**CHART_LAYOUT, height=280)
-                st.plotly_chart(fig, use_container_width=True)
+                if not plot_df.empty:
+                    fig = go.Figure(go.Bar(
+                        x=plot_df["area"], y=plot_df["avg_closure_days"],
+                        marker=dict(color=plot_df["avg_closure_days"], colorscale="RdYlGn_r")
+                    ))
+                    fig.update_layout(**CHART_LAYOUT, height=280)
+                    st.plotly_chart(fig, use_container_width=True)
+                else:
+                    st.markdown("""
+                    <div class="no-results-card">
+                        <div class="no-results-icon">⏱️</div>
+                        <div class="no-results-title">No Closure Data</div>
+                        <div class="no-results-sub">Not enough closed complaints to calculate averages</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+            else:
+                st.markdown("""
+                <div class="no-results-card">
+                    <div class="no-results-icon">⏱️</div>
+                    <div class="no-results-title">No Data</div>
+                    <div class="no-results-sub">Select a broader range to see closure time analytics</div>
+                </div>
+                """, unsafe_allow_html=True)
 
     with tab_records:
         st.subheader("Complaint Records")
@@ -580,7 +653,13 @@ with main_col:
             csv_data = display_df.to_csv(index=False).encode("utf-8")
             st.download_button("Export CSV", data=csv_data, file_name="complaints_export.csv", mime="text/csv")
         else:
-            st.info("No complaints match filters")
+            st.markdown("""
+            <div class="no-results-card" style="min-height: 400px;">
+                <div class="no-results-icon">📋</div>
+                <div class="no-results-title">No Matching Records</div>
+                <div class="no-results-sub">Try adjusting your filters or search criteria in the sidebar to find records.</div>
+            </div>
+            """, unsafe_allow_html=True)
 
     with tab_submit:
         if st.session_state.submit_msg:
