@@ -310,47 +310,47 @@ with st.sidebar:
     st.markdown("---")
 
     if st.session_state.is_admin:
-        st.success("Admin mode active")
+        st.success("🔓 Admin mode active")
         if st.button("Logout", use_container_width=True):
             st.session_state.is_admin    = False
             st.session_state.login_step  = 0
             st.session_state.drawer_open = False
             st.rerun()
+            
     elif st.session_state.login_step == 1:
-        st.markdown("### Admin Login")
-        uid = st.text_input("Username", placeholder="Enter username", key="uid_field")
-        c1, c2 = st.columns(2)
-        with c1:
-            if st.button("Next →", use_container_width=True, key="uid_next"):
-                if uid.strip() == ADMIN_USERNAME:
-                    st.session_state.login_uid_input = uid.strip()
-                    st.session_state.login_step = 2
-                    st.rerun()
-                else:
-                    st.error("Username not found")
-        with c2:
-            if st.button("Cancel", use_container_width=True, key="uid_cancel"):
-                st.session_state.login_step = 0
+        st.markdown("### 🔐 Admin Access")
+        uid = st.text_input("Admin Name", placeholder="Enter username...", key="uid_field")
+        
+        if uid:
+            if uid.strip() == ADMIN_USERNAME:
+                st.session_state.login_uid_input = uid.strip()
+                st.session_state.login_step = 2
                 st.rerun()
+            else:
+                st.error("Username not found")
+                
+        if st.button("Cancel", use_container_width=True):
+            st.session_state.login_step = 0
+            st.rerun()
+            
     elif st.session_state.login_step == 2:
-        st.markdown(f"### Hi, {st.session_state.login_uid_input}")
-        pwd = st.text_input("Password", type="password", placeholder="Enter password", key="pwd_field")
-        c1, c2 = st.columns(2)
-        with c1:
-            if st.button("Login", use_container_width=True, key="pwd_login"):
-                if pwd == ADMIN_PASSWORD:
-                    st.session_state.is_admin    = True
-                    st.session_state.login_step  = 0
-                    st.session_state.drawer_open = True
-                    st.rerun()
-                else:
-                    st.error("Incorrect password")
-        with c2:
-            if st.button("← Back", use_container_width=True, key="pwd_back"):
-                st.session_state.login_step = 1
+        st.markdown(f"### 🔑 Hi, {st.session_state.login_uid_input}")
+        pwd = st.text_input("Password", type="password", placeholder="Enter password...", key="pwd_field")
+        
+        if pwd:
+            if pwd == ADMIN_PASSWORD:
+                st.session_state.is_admin    = True
+                st.session_state.login_step  = 0
+                st.session_state.drawer_open = True
                 st.rerun()
+            else:
+                st.error("Incorrect password")
+                
+        if st.button("← Back", use_container_width=True):
+            st.session_state.login_step = 1
+            st.rerun()
     else:
-        if st.button("Admin Login", use_container_width=True):
+        if st.button("🔐 Admin Panel", use_container_width=True):
             st.session_state.login_step = 1
             st.rerun()
 
