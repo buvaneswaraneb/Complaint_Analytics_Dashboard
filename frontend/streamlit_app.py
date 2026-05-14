@@ -138,10 +138,11 @@ section[data-testid="stSidebar"] * { color: #e2e8f0 !important; }
 * { outline: none !important; }
 *:focus, *:active, *:focus-visible { outline: none !important; box-shadow: none !important; }
 
-/* Target all Streamlit Input/Select/TextArea wrappers for consistent rounding & No White Lines */
+/* Target all Streamlit Input/Select/TextArea/Date wrappers for consistent rounding & No White Lines */
 div[data-testid="stTextInput"] > div, 
 div[data-testid="stTextArea"] > div, 
 div[data-testid="stSelectbox"] > div,
+div[data-testid="stDateInput"] > div,
 div[data-baseweb="input"], 
 div[data-baseweb="base-input"],
 div[data-baseweb="select"],
@@ -161,10 +162,11 @@ div[data-baseweb="select"] > div {
     box-shadow: none !important;
 }
 
-/* Unified Input Container Styling (fixes password eye icon) */
+/* Unified Input Container Styling */
 div[data-testid="stTextInput"] [data-baseweb="base-input"],
 div[data-testid="stTextArea"] [data-baseweb="base-input"],
-div[data-testid="stSelectbox"] [data-baseweb="select"] {
+div[data-testid="stSelectbox"] [data-baseweb="select"],
+div[data-testid="stDateInput"] [data-baseweb="base-input"] {
   background: rgba(255,255,255,0.04) !important; 
   border: 1px solid rgba(255,255,255,0.1) !important; 
   border-radius: 14px !important; 
