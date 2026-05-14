@@ -70,14 +70,17 @@ section[data-testid="stSidebar"] * { color: #e2e8f0 !important; }
   align-items: flex-end;
   justify-content: center;
   padding-bottom: 16px;
+  padding-top: 35px;
+  overflow: visible !important;
 }
+div[data-testid="stVerticalBlock"] > div:has(.kpi-grid) { overflow: visible !important; }
 .kpi-card {
   background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 16px;
   padding: 18px 16px;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   flex: 1;
   min-width: 0;
   cursor: default;
