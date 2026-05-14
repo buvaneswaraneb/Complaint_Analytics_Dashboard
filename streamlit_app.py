@@ -47,11 +47,11 @@ section[data-testid="stSidebar"] * { color: #e2e8f0 !important; }
 .header-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .header-badge { background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); border-radius: 50px; padding: 4px 12px; font-size: 0.72rem; color: #a5b4fc; font-weight: 600; display:inline-flex; align-items:center; gap:5px; }
 .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 28px; }
-.kpi-card { background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px 16px; position: relative; overflow: hidden; transition: transform .2s; }
+.kpi-card { background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px 16px; position: relative; overflow: hidden; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease; }
 .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent, linear-gradient(90deg, #6366f1, #8b5cf6)); }
-.kpi-card:hover { transform: translateY(-3px); }
+.kpi-card:hover { transform: scale(1.1) translateY(-5px); z-index: 10; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
 .kpi-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:10px; background: var(--icon-bg, rgba(99,102,241,0.15)); }
-.kpi-icon svg { display:block; }
+.kpi-icon svg { width: 20px; height: 20px; stroke: #a5b4fc; }
 .kpi-label { font-size: 0.68rem; color: #64748b; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; display: block; }
 .kpi-value { font-size: 1.75rem; font-weight: 800; line-height: 1.15; margin-top: 6px; display: block; }
 .kpi-sub { font-size: 0.68rem; color: #475569; margin-top: 6px; display: block; }
@@ -284,31 +284,31 @@ with main_col:
     st.markdown(f"""
 <div class="kpi-grid">
   <div class="kpi-card" style="--accent:linear-gradient(90deg,#6366f1,#8b5cf6);--icon-bg:rgba(99,102,241,0.15)">
-    <div class="kpi-icon">📋</div>
+    <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
     <span class="kpi-label">TOTAL COMPLAINTS</span>
     <span class="kpi-value" style="color:#f1f5f9">{total:,}</span>
     <span class="kpi-sub">In selected range</span>
   </div>
   <div class="kpi-card" style="--accent:linear-gradient(90deg,#10b981,#34d399);--icon-bg:rgba(16,185,129,0.15)">
-    <div class="kpi-icon">✅</div>
+    <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
     <span class="kpi-label">CLOSED</span>
     <span class="kpi-value" style="color:#6ee7b7">{len(closed_df):,}</span>
     <span class="kpi-sub">Fully resolved</span>
   </div>
   <div class="kpi-card" style="--accent:linear-gradient(90deg,#f59e0b,#fbbf24);--icon-bg:rgba(245,158,11,0.15)">
-    <div class="kpi-icon">⏳</div>
+    <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fcd34d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
     <span class="kpi-label">OPEN / PENDING</span>
     <span class="kpi-value" style="color:#fcd34d">{open_cnt:,}</span>
     <span class="kpi-sub">Awaiting resolution</span>
   </div>
   <div class="kpi-card" style="--accent:linear-gradient(90deg,#3b82f6,#60a5fa);--icon-bg:rgba(59,130,246,0.15)">
-    <div class="kpi-icon">⏱️</div>
+    <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></div>
     <span class="kpi-label">AVG CLOSURE TIME</span>
     <span class="kpi-value" style="color:#93c5fd">{avg_days:.1f} <span style="font-size:0.9rem;color:#64748b">days</span></span>
     <span class="kpi-sub">To close</span>
   </div>
   <div class="kpi-card" style="--accent:linear-gradient(90deg,#8b5cf6,#a78bfa);--icon-bg:rgba(139,92,246,0.15)">
-    <div class="kpi-icon">📈</div>
+    <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#c4b5fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg></div>
     <span class="kpi-label">CLOSURE RATE</span>
     <span class="kpi-value" style="color:#c4b5fd">{rate:.1f}<span style="font-size:0.9rem;color:#64748b">%</span></span>
     <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:{rate_w}%;background:linear-gradient(90deg,#8b5cf6,#a78bfa)"></div></div>
