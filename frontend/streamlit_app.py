@@ -444,7 +444,7 @@ with main_col:
         legend=dict(bgcolor="rgba(0,0,0,0)"),
     )
 
-    tab_overview, tab_records, tab_submit = st.tabs(["Overview", "Records", "Raise Complaint"])
+    tab_overview, tab_records, tab_submit = st.tabs(["Overview", "Records", "Raise a Complaint"])
 
     with tab_overview:
         col1, col2 = st.columns(2)
