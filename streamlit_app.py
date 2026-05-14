@@ -143,6 +143,7 @@ div[data-testid="stSelectbox"] > div,
 div[data-testid="stDateInput"] > div,
 div[data-baseweb="input"], 
 div[data-baseweb="base-input"],
+div[data-baseweb="base-input"] > div,
 div[data-baseweb="select"],
 div[data-baseweb="select"] > div,
 div[role="combobox"],
@@ -169,7 +170,16 @@ div[data-testid="stDateInput"] [data-baseweb="base-input"] {
   border: 1px solid rgba(255,255,255,0.1) !important; 
   border-radius: 14px !important; 
   backdrop-filter: blur(10px) !important;
-  transition: all 0.2s ease !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+div[data-testid="stTextInput"] [data-baseweb="base-input"]:focus-within,
+div[data-testid="stTextArea"] [data-baseweb="base-input"]:focus-within,
+div[data-testid="stSelectbox"] [data-baseweb="select"]:focus-within,
+div[data-testid="stDateInput"] [data-baseweb="base-input"]:focus-within {
+  border-color: rgba(99,102,241,0.6) !important; 
+  background: rgba(255,255,255,0.08) !important;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.25) !important;
 }
 
 div[data-testid="stTextInput"] input, 
@@ -177,13 +187,7 @@ div[data-testid="stTextArea"] textarea {
   background: transparent !important;
   border: none !important;
   color: #f1f5f9 !important;
-  resize: none !important; /* Removes the white resize handle */
-}
-
-div[data-testid="stTextInput"] [data-baseweb="base-input"]:focus-within {
-  border-color: #6366f1 !important; 
-  background: rgba(255,255,255,0.08) !important;
-  box-shadow: 0 0 0 2px rgba(99,102,241,0.4) !important;
+  resize: none !important;
 }
 
 /* Style the password toggle button */
