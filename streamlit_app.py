@@ -108,8 +108,16 @@ div[data-testid="stVerticalBlock"] > div:has(.kpi-grid) { overflow: visible !imp
   box-shadow: 0 4px 15px rgba(99,102,241,0.4);
 }
 .stButton > button { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 10px; font-weight: 600; padding: 10px 22px; }
-.section-title { display:flex; align-items:center; gap:8px; font-size:1rem; font-weight:700; color:#e2e8f0; margin-bottom:4px; }
-.sidebar-section { display:flex; align-items:center; gap:7px; font-size:0.9rem; font-weight:700; color:#a5b4fc; margin:12px 0 8px 0; }</style>
+.section-title { display:flex; align-items:center; gap:8px; font-size:1.1rem; font-weight:800; color:#f1f5f9; margin-bottom:12px; margin-top:10px; }
+.sidebar-section { display:flex; align-items:center; gap:7px; font-size:0.9rem; font-weight:700; color:#a5b4fc; margin:18px 0 10px 0; }
+div[data-testid="stTextInput"] input, div[data-testid="stTextArea"] textarea, div[data-testid="stSelectbox"] div[data-baseweb="select"] { 
+  background: rgba(255,255,255,0.05) !important; 
+  border: 1px solid rgba(255,255,255,0.1) !important; 
+  border-radius: 12px !important; color: white !important; 
+  backdrop-filter: blur(5px);
+}
+div[data-testid="stTextInput"] input:focus { border-color: #6366f1 !important; box-shadow: 0 0 10px rgba(99,102,241,0.3) !important; }
+</style>
 """, unsafe_allow_html=True)
 
 # ── Session State ──────────────────────────────────────────────────────────────
@@ -367,8 +375,10 @@ with main_col:
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         font=dict(color="#94a3b8", size=11),
-        margin=dict(l=10, r=10, t=36, b=10),
-        legend=dict(bgcolor="rgba(0,0,0,0)"),
+        margin=dict(l=10, r=10, t=45, b=10),
+        legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color="#f1f5f9")),
+        xaxis=dict(gridcolor="rgba(255,255,255,0.05)", zeroline=False),
+        yaxis=dict(gridcolor="rgba(255,255,255,0.05)", zeroline=False),
     )
 
     tab_overview, tab_records, tab_submit = st.tabs(["📊 Overview", "📋 Records", "➕ Raise a Complaint"])
