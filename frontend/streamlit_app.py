@@ -75,40 +75,39 @@ section[data-testid="stSidebar"] * { color: #e2e8f0 !important; }
 }
 div[data-testid="stVerticalBlock"] > div:has(.kpi-grid) { overflow: visible !important; }
 .kpi-card {
-  background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 22px;
-  padding: 20px 16px 16px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 22px 18px;
   position: relative;
-  overflow: visible;
+  overflow: hidden;
   flex: 1;
   min-width: 0;
   cursor: default;
   z-index: 1;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   transform-origin: bottom center;
   will-change: transform, filter;
+  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
 }
 
 .kpi-card::before {
   content: '';
   position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40px;
-  height: 3px;
-  background: var(--accent, #6366f1);
-  border-radius: 10px;
-  opacity: 0.8;
-  box-shadow: 0 0 10px var(--glow, rgba(99,102,241,0.2));
-  transition: all 0.3s ease;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, var(--accent, #6366f1) 50%, rgba(255,255,255,0) 100%);
+  opacity: 0.6;
+  z-index: 2;
+  transition: opacity 0.3s ease;
 }
 
 .kpi-card:hover::before {
-  width: 60px;
   opacity: 1;
-  box-shadow: 0 0 15px var(--glow, rgba(99,102,241,0.5));
 }
 
 /* macOS Dock magnification — all cards shrink when grid is hovered */
