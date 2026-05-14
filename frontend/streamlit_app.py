@@ -185,6 +185,10 @@ input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
 }
 ::selection { background: rgba(99,102,241,0.3); color: white; }
+/* Hide Streamlit default input instructions (Ctrl+Enter, etc.) */
+div[data-testid="InputInstructions"] {
+    display: none !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
