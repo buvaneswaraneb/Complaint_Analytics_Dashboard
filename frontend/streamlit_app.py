@@ -56,16 +56,26 @@ section[data-testid="stSidebar"] * { color: #e2e8f0 !important; }
 .page-header-sub { font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px; }
 .header-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .header-badge { background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); border-radius: 50px; padding: 4px 12px; font-size: 0.72rem; color: #a5b4fc; font-weight: 600; display:inline-flex; align-items:center; gap:5px; }
-.kpi-grid { display: flex; gap: 12px; margin-bottom: 28px; align-items: flex-end; justify-content: center; perspective: 800px; }
+.kpi-grid { 
+  display: flex; 
+  gap: 12px; 
+  margin-bottom: 28px; 
+  align-items: stretch; 
+  justify-content: center; 
+  perspective: 1000px; 
+}
 .kpi-card {
   background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 16px;
-  padding: 18px 16px;
+  padding: 20px 18px;
   position: relative;
   overflow: hidden;
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease, z-index 0s;
   transform-origin: bottom center;
   cursor: default;
@@ -106,13 +116,21 @@ div[data-testid="stTextInput"] input, div[data-testid="stTextArea"] textarea, di
   backdrop-filter: blur(10px) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   outline: none !important;
-  box-shadow: inset 0 1px 1px rgba(255,255,255,0.05) !important;
+  box-shadow: none !important;
 }
+div[data-testid="stTextInput"] > div, div[data-testid="stTextArea"] > div { border: none !important; background: transparent !important; box-shadow: none !important; outline: none !important; }
 div[data-testid="stTextInput"] input:focus, div[data-testid="stTextArea"] textarea:focus { 
   border-color: #6366f1 !important; 
   background: rgba(255,255,255,0.08) !important;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.2), 0 8px 16px rgba(0,0,0,0.2) !important;
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.3) !important;
   outline: none !important;
+}
+/* Aggressive Red/Blue Glitch Fix */
+div[data-baseweb="input"] { border: none !important; outline: none !important; background: transparent !important; }
+input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f1f5f9 !important;
+  -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
+  transition: background-color 5000s ease-in-out 0s !important;
 }
 </style>
 """, unsafe_allow_html=True)
