@@ -41,6 +41,14 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 .main .block-container { padding: 1.5rem 2rem !important; max-width: 100% !important; }
 section[data-testid="stSidebar"] { background: linear-gradient(180deg, #0d1117 0%, #111827 100%); border-right: 1px solid rgba(99,102,241,0.2); }
 section[data-testid="stSidebar"] * { color: #e2e8f0 !important; }
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #0b0f1a; }
+::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #6366f1, #8b5cf6); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #a78bfa; }
+/* Fade-in Animation */
+.main .block-container { animation: fadeIn 0.8s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 /* Page Header */
 .page-header { 
