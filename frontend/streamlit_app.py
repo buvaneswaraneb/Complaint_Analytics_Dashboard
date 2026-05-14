@@ -163,6 +163,11 @@ div[data-baseweb="select"] > div {
     box-shadow: none !important;
 }
 
+/* Ensure no clipping on rounded inputs */
+div[data-testid="stTextInput"], div[data-testid="stTextArea"], div[data-testid="stSelectbox"], div[data-testid="stDateInput"] {
+    overflow: visible !important;
+}
+
 /* Unified Input Container Styling */
 div[data-testid="stTextInput"] [data-baseweb="base-input"],
 div[data-testid="stTextArea"] [data-baseweb="base-input"],
@@ -172,6 +177,7 @@ div[data-testid="stDateInput"] [data-baseweb="base-input"] {
   border: 1px solid rgba(255,255,255,0.1) !important; 
   border-radius: 14px !important; 
   backdrop-filter: blur(10px) !important;
+  padding: 0 16px !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
@@ -179,9 +185,9 @@ div[data-testid="stTextInput"] [data-baseweb="base-input"]:focus-within,
 div[data-testid="stTextArea"] [data-baseweb="base-input"]:focus-within,
 div[data-testid="stSelectbox"] [data-baseweb="select"]:focus-within,
 div[data-testid="stDateInput"] [data-baseweb="base-input"]:focus-within {
-  border-color: rgba(99,102,241,0.6) !important; 
+  border-color: rgba(99,102,241,0.8) !important; 
   background: rgba(255,255,255,0.08) !important;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.25) !important;
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.2) !important;
 }
 
 div[data-testid="stTextInput"] input, 
@@ -718,8 +724,9 @@ if st.session_state.is_admin:
             u1, u2, u3 = st.columns(3)
             upd_status   = u1.selectbox("Status", ["Pending", "In Progress", "Closed"],
                                         index=["Pending", "In Progress", "Closed"].index(row.get("status", "Pending")), key="adm_status")
-            upd_priority = u2.selectbox("Priority", ["Low", "Medium", "High"], key="adm_pri")
-            upd_area     = u3.selectbox("Area", areas, index=areas.index(row["area"]), key="adm_area")
+            upd_area     = u2.selectbox("Area", areas, index=areas.index(row["area"]), key="adm_area")
+            upd_priority = u3.selectbox("Priority", ["Low", "Medium", "High"],
+                                        index=["Low", "Medium", "High"].index(row.get("priority", "Medium")) if row.get("priority") in ["Low", "Medium", "High"] else 1, key="adm_pri")
             upd_category = st.selectbox("Category", categories, index=categories.index(row["category"]), key="adm_cat")
             upd_closed   = st.date_input("Closed Date", value=date.today(), key="adm_closed") if upd_status == "Closed" else None
             upd_desc     = st.text_area("Description", value=row.get("description", ""), key="adm_desc")
