@@ -159,23 +159,36 @@ div[data-baseweb="select"] > div {
     box-shadow: none !important;
 }
 
-div[data-testid="stTextInput"] input, 
-div[data-testid="stTextArea"] textarea, 
-div[data-testid="stSelectbox"] div[data-baseweb="select"] { 
+/* Unified Input Container Styling (fixes password eye icon) */
+div[data-testid="stTextInput"] [data-baseweb="base-input"],
+div[data-testid="stTextArea"] [data-baseweb="base-input"],
+div[data-testid="stSelectbox"] [data-baseweb="select"] {
   background: rgba(255,255,255,0.04) !important; 
   border: 1px solid rgba(255,255,255,0.1) !important; 
   border-radius: 14px !important; 
-  color: #f1f5f9 !important; 
   backdrop-filter: blur(10px) !important;
   transition: all 0.2s ease !important;
-  box-shadow: none !important;
 }
 
-div[data-testid="stTextInput"] input:focus, 
-div[data-testid="stTextArea"] textarea:focus { 
+div[data-testid="stTextInput"] input, 
+div[data-testid="stTextArea"] textarea {
+  background: transparent !important;
+  border: none !important;
+  color: #f1f5f9 !important;
+}
+
+div[data-testid="stTextInput"] [data-baseweb="base-input"]:focus-within {
   border-color: #6366f1 !important; 
   background: rgba(255,255,255,0.08) !important;
   box-shadow: 0 0 0 2px rgba(99,102,241,0.4) !important;
+}
+
+/* Style the password toggle button */
+div[data-testid="stTextInput"] button {
+  background: transparent !important;
+  border: none !important;
+  color: #94a3b8 !important;
+  margin-right: 8px !important;
 }
 
 input:-webkit-autofill {
