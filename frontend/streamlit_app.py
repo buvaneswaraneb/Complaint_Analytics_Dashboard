@@ -20,7 +20,7 @@ DB_PATH  = BASE_DIR / "data" / "complaints.db"
 CSV_PATH = BASE_DIR / "data" / "sample_complaints.csv"
 
 # REPLACE THIS WITH YOUR ACTUAL VERCEL DOMAIN
-API_URL = "https://your-project-name.vercel.app"
+API_URL = "https://complaint-analytics-dashboard-k20j.vercel.app"
 
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "admin123"
