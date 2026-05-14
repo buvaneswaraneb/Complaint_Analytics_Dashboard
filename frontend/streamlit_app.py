@@ -92,15 +92,6 @@ div[data-testid="stVerticalBlock"] > div:has(.kpi-grid) { overflow: visible !imp
   transform-origin: bottom center;
   will-change: transform, filter;
 }
-.kpi-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 4px;
-  background: var(--accent, linear-gradient(90deg, #6366f1, #8b5cf6));
-  border-radius: 21px 21px 0 0;
-  z-index: 2;
-}
 
 /* macOS Dock magnification — all cards shrink when grid is hovered */
 .kpi-grid:hover .kpi-card {
