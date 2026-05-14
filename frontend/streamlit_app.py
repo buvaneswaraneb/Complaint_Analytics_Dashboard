@@ -76,9 +76,9 @@ section[data-testid="stSidebar"] * { color: #e2e8f0 !important; }
 div[data-testid="stVerticalBlock"] > div:has(.kpi-grid) { overflow: visible !important; }
 .kpi-card {
   background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 20px;
-  padding: 18px 18px 18px 24px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 22px;
+  padding: 20px 16px 16px 16px;
   position: relative;
   overflow: visible;
   flex: 1;
@@ -93,19 +93,21 @@ div[data-testid="stVerticalBlock"] > div:has(.kpi-grid) { overflow: visible !imp
 .kpi-card::before {
   content: '';
   position: absolute;
-  left: 8px;
-  top: 25%;
-  bottom: 25%;
-  width: 4px;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 3px;
   background: var(--accent, #6366f1);
   border-radius: 10px;
-  box-shadow: 0 0 10px var(--glow, rgba(99,102,241,0.3));
+  opacity: 0.8;
+  box-shadow: 0 0 10px var(--glow, rgba(99,102,241,0.2));
   transition: all 0.3s ease;
 }
 
 .kpi-card:hover::before {
-  top: 15%;
-  bottom: 15%;
+  width: 60px;
+  opacity: 1;
   box-shadow: 0 0 15px var(--glow, rgba(99,102,241,0.5));
 }
 
