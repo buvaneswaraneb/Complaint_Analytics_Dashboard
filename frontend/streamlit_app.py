@@ -27,7 +27,7 @@ ADMIN_PASSWORD = "admin123"
 
 st.set_page_config(
     page_title="Complaint Analytics Dashboard",
-    page_icon="📊",
+    page_icon=":bar_chart:",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -41,12 +41,36 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 .main .block-container { padding: 1.5rem 2rem !important; max-width: 100% !important; }
 section[data-testid="stSidebar"] { background: linear-gradient(180deg, #0d1117 0%, #111827 100%); border-right: 1px solid rgba(99,102,241,0.2); }
 section[data-testid="stSidebar"] * { color: #e2e8f0 !important; }
+
+/* Page Header */
 .page-header { background: linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.08) 100%); border: 1px solid rgba(99,102,241,0.2); border-radius: 20px; padding: 24px 28px; margin-bottom: 28px; }
 .page-header-title { font-size: 1.8rem; font-weight: 800; color: #f1f5f9; margin-bottom: 4px; display:flex; align-items:center; gap:10px; }
 .page-header-sub { font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px; }
 .header-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-.header-badge { background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); border-radius: 50px; padding: 4px 12px; font-size: 0.72rem; color: #a5b4fc; font-weight: 600; display:inline-flex; align-items:center; gap:5px; }
-.kpi-grid { display: flex; gap: 12px; margin-bottom: 28px; align-items: flex-end; justify-content: center; perspective: 800px; }
+.header-badge {
+  background: rgba(99,102,241,0.2);
+  border: 1px solid rgba(99,102,241,0.4);
+  border-radius: 50px;
+  padding: 5px 13px 5px 9px;
+  font-size: 0.72rem;
+  color: #a5b4fc;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1;
+}
+.header-badge svg { flex-shrink: 0; }
+
+/* macOS Dock KPI Grid */
+.kpi-grid {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 28px;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 16px;
+}
 .kpi-card {
   background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%);
   border: 1px solid rgba(255,255,255,0.08);
@@ -56,25 +80,55 @@ section[data-testid="stSidebar"] * { color: #e2e8f0 !important; }
   overflow: hidden;
   flex: 1;
   min-width: 0;
-  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease, z-index 0s;
-  transform-origin: bottom center;
   cursor: default;
   z-index: 1;
+  transition:
+    transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.22s ease,
+    filter 0.18s ease;
+  transform-origin: bottom center;
+  will-change: transform, filter;
 }
-.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent, linear-gradient(90deg, #6366f1, #8b5cf6)); border-radius: 16px 16px 0 0; }
-.kpi-grid:hover .kpi-card { transform: scale(0.95); filter: brightness(0.75); }
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent, linear-gradient(90deg, #6366f1, #8b5cf6));
+  border-radius: 16px 16px 0 0;
+}
+
+/* macOS Dock magnification — all cards shrink when grid is hovered */
+.kpi-grid:hover .kpi-card {
+  transform: scale(0.93) translateY(4px);
+  filter: brightness(0.68);
+}
+/* hovered card pops up */
 .kpi-grid:hover .kpi-card:hover {
-  transform: scale(1.18) translateY(-10px);
+  transform: scale(1.22) translateY(-14px);
   filter: brightness(1);
-  z-index: 10;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.12), 0 8px 32px var(--glow, rgba(99,102,241,0.3));
+  z-index: 20;
+  box-shadow:
+    0 24px 64px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(255,255,255,0.13),
+    0 8px 32px var(--glow, rgba(99,102,241,0.3));
 }
+/* immediate neighbours */
 .kpi-grid:hover .kpi-card:hover + .kpi-card,
 .kpi-grid:hover .kpi-card:has(+ .kpi-card:hover) {
-  transform: scale(1.07) translateY(-5px);
-  filter: brightness(0.9);
+  transform: scale(1.10) translateY(-7px);
+  filter: brightness(0.88);
+  z-index: 10;
+}
+/* second-degree neighbours */
+.kpi-grid:hover .kpi-card:hover + .kpi-card + .kpi-card,
+.kpi-grid:hover .kpi-card:has(+ .kpi-card + .kpi-card:hover) {
+  transform: scale(1.04) translateY(-3px);
+  filter: brightness(0.80);
   z-index: 5;
 }
+
+/* KPI internals */
 .kpi-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:10px; background: var(--icon-bg, rgba(99,102,241,0.15)); flex-shrink: 0; }
 .kpi-icon svg { display:block; width:20px; height:20px; }
 .kpi-label { font-size: 0.68rem; color: #64748b; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; display: block; }
@@ -82,12 +136,15 @@ section[data-testid="stSidebar"] * { color: #e2e8f0 !important; }
 .kpi-sub { font-size: 0.68rem; color: #475569; margin-top: 6px; display: block; }
 .progress-bar-wrap { background: rgba(255,255,255,0.06); border-radius: 99px; height: 6px; overflow: hidden; margin-top: 10px; }
 .progress-bar-fill { height: 100%; border-radius: 99px; }
+
+/* Tabs & Buttons */
 .stTabs [data-baseweb="tab-list"] { background: rgba(255,255,255,0.04); border-radius: 12px; padding: 4px; gap: 4px; border: 1px solid rgba(255,255,255,0.06); }
 .stTabs [data-baseweb="tab"] { border-radius: 8px; color: #94a3b8; font-weight: 600; font-size: 0.85rem; padding: 8px 18px; }
 .stTabs [aria-selected="true"] { background: linear-gradient(135deg, #6366f1, #8b5cf6) !important; color: white !important; }
 .stButton > button { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 10px; font-weight: 600; padding: 10px 22px; }
 .section-title { display:flex; align-items:center; gap:8px; font-size:1rem; font-weight:700; color:#e2e8f0; margin-bottom:4px; }
-.sidebar-section { display:flex; align-items:center; gap:7px; font-size:0.9rem; font-weight:700; color:#a5b4fc; margin:12px 0 8px 0; }</style>
+.sidebar-section { display:flex; align-items:center; gap:7px; font-size:0.9rem; font-weight:700; color:#a5b4fc; margin:12px 0 8px 0; }
+</style>
 """, unsafe_allow_html=True)
 
 # ── Session State ──────────────────────────────────────────────────────────────
@@ -292,7 +349,7 @@ main_col = st.container()
 with main_col:
     now_str    = datetime.now().strftime("%b %d, %Y · %H:%M")
     date_range = f"{start_date.strftime('%b %d')} → {end_date.strftime('%b %d, %Y')}"
-    admin_badge = '<span class="header-badge" style="background:rgba(99,102,241,0.3)">Admin</span>' if st.session_state.is_admin else ""
+    admin_badge = '<span class="header-badge" style="background:rgba(99,102,241,0.3);border-color:rgba(139,92,246,0.6)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin</span>' if st.session_state.is_admin else ""
 
     st.markdown(f"""
 <div class="page-header">
@@ -302,8 +359,14 @@ with main_col:
   </div>
   <div class="page-header-sub">Real-time public service complaint intelligence dashboard</div>
   <div class="header-badges">
-    <span class="header-badge">&#128337; {now_str}</span>
-    <span class="header-badge">&#128197; {date_range}</span>
+    <span class="header-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      {now_str}
+    </span>
+    <span class="header-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      {date_range}
+    </span>
     {admin_badge}
   </div>
 </div>
