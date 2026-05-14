@@ -108,11 +108,27 @@ section[data-testid="stSidebar"] * { color: #e2e8f0 !important; }
 .stButton > button { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 10px; font-weight: 600; padding: 10px 22px; }
 .section-title { display:flex; align-items:center; gap:8px; font-size:1rem; font-weight:700; color:#e2e8f0; margin-bottom:4px; }
 .sidebar-section { display:flex; align-items:center; gap:7px; font-size:0.9rem; font-weight:700; color:#a5b4fc; margin:12px 0 8px 0; }
-/* Nuclear Focus Reset - Kills the Red/Blue Glitch */
+/* Nuclear Focus Reset - Kills the Red/Blue Glitch & Square Corners */
 * { outline: none !important; }
 *:focus, *:active, *:focus-visible { outline: none !important; box-shadow: none !important; }
 
-div[data-testid="stTextInput"] input, div[data-testid="stTextArea"] textarea, div[data-testid="stSelectbox"] div[data-baseweb="select"] { 
+/* Target all Streamlit Input/Select/TextArea wrappers for consistent rounding */
+div[data-testid="stTextInput"] > div, 
+div[data-testid="stTextArea"] > div, 
+div[data-testid="stSelectbox"] > div,
+div[data-baseweb="input"], 
+div[data-baseweb="base-input"],
+div[data-baseweb="select"] {
+  border-radius: 14px !important;
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+div[data-testid="stTextInput"] input, 
+div[data-testid="stTextArea"] textarea, 
+div[data-testid="stSelectbox"] div[data-baseweb="select"] { 
   background: rgba(255,255,255,0.04) !important; 
   border: 1px solid rgba(255,255,255,0.1) !important; 
   border-radius: 14px !important; 
@@ -121,14 +137,14 @@ div[data-testid="stTextInput"] input, div[data-testid="stTextArea"] textarea, di
   transition: all 0.2s ease !important;
   box-shadow: none !important;
 }
-div[data-testid="stTextInput"] > div, div[data-testid="stTextArea"] > div, div[data-baseweb="input"], div[data-baseweb="base-input"] { 
-  border: none !important; outline: none !important; background: transparent !important; box-shadow: none !important; 
-}
-div[data-testid="stTextInput"] input:focus, div[data-testid="stTextArea"] textarea:focus { 
+
+div[data-testid="stTextInput"] input:focus, 
+div[data-testid="stTextArea"] textarea:focus { 
   border-color: #6366f1 !important; 
   background: rgba(255,255,255,0.08) !important;
   box-shadow: 0 0 0 2px rgba(99,102,241,0.4) !important;
 }
+
 input:-webkit-autofill {
   -webkit-text-fill-color: #f1f5f9 !important;
   -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
