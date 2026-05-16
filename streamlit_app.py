@@ -176,8 +176,7 @@ div[data-testid="stTextArea"] > div,
 div[data-testid="stSelectbox"] > div,
 div[data-testid="stDateInput"] > div,
 div[data-baseweb="input"], 
-div[data-baseweb="base-input"],
-div[data-baseweb="select"] {
+div[data-baseweb="base-input"] {
   border-radius: 14px !important;
   border: none !important;
   background: transparent !important;
@@ -187,9 +186,8 @@ div[data-baseweb="select"] {
 
 div[data-testid="stTextInput"] [data-baseweb="base-input"],
 div[data-testid="stTextArea"] [data-baseweb="base-input"],
-div[data-testid="stSelectbox"] [data-baseweb="select"],
 div[data-testid="stDateInput"] [data-baseweb="base-input"] {
-  background: rgba(255,255,255,0.04) !important; 
+  background: rgba(255,255,255,0.06) !important; 
   border: 1px solid rgba(255,255,255,0.1) !important; 
   border-radius: 14px !important; 
   backdrop-filter: blur(10px) !important;
@@ -197,9 +195,31 @@ div[data-testid="stDateInput"] [data-baseweb="base-input"] {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
+/* Selectbox — nuclear override for BaseWeb black background */
+div[data-testid="stSelectbox"] [data-baseweb="select"],
+div[data-testid="stSelectbox"] [data-baseweb="select"] > div,
+div[data-testid="stSelectbox"] [data-baseweb="select"] > div > div,
+div[data-testid="stSelectbox"] [data-baseweb="select"] > div > div > div,
+div[data-testid="stSelectbox"] [role="combobox"],
+div[data-testid="stSelectbox"] button,
+div[data-testid="stSelectbox"] input {
+  background-color: rgba(255,255,255,0.06) !important;
+  background: rgba(255,255,255,0.06) !important;
+}
+div[data-testid="stSelectbox"] [data-baseweb="select"] > div {
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  border-radius: 14px !important;
+  backdrop-filter: blur(10px) !important;
+  transition: all 0.3s ease !important;
+}
+div[data-testid="stSelectbox"] [data-baseweb="select"] > div:hover {
+  background-color: rgba(255,255,255,0.1) !important;
+  background: rgba(255,255,255,0.1) !important;
+  border-color: rgba(99,102,241,0.5) !important;
+}
+
 div[data-testid="stTextInput"] [data-baseweb="base-input"]:focus-within,
 div[data-testid="stTextArea"] [data-baseweb="base-input"]:focus-within,
-div[data-testid="stSelectbox"] [data-baseweb="select"]:focus-within,
 div[data-testid="stDateInput"] [data-baseweb="base-input"]:focus-within {
   border-color: rgba(99,102,241,0.8) !important; 
   background: rgba(255,255,255,0.08) !important;
@@ -259,31 +279,43 @@ if "submit_msg"      not in st.session_state: st.session_state.submit_msg      =
 
 # ── DB Helpers ─────────────────────────────────────────────────────────────────
 def get_connection() -> sqlite3.Connection:
-    conn = sqlite3.connect(str(DB_PATH), check_same_thread=False)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA synchronous=NORMAL")
-    return conn
+    try:
+        conn = sqlite3.connect(str(DB_PATH), check_same_thread=False, timeout=10)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=NORMAL")
+        return conn
+    except Exception as e:
+        st.error(f"Failed to connect to database: {e}")
+        raise
 
 
 def init_db() -> None:
-    DB_PATH.parent.mkdir(exist_ok=True)
-    with get_connection() as conn:
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS complaints (
-                id           TEXT PRIMARY KEY,
-                created_date TEXT NOT NULL,
-                closed_date  TEXT,
-                area         TEXT NOT NULL,
-                category     TEXT NOT NULL,
-                priority     TEXT,
-                status       TEXT NOT NULL DEFAULT 'Pending',
-                description  TEXT NOT NULL
-            )
-        """)
-        count = conn.execute("SELECT COUNT(*) FROM complaints").fetchone()[0]
-        if count == 0 and CSV_PATH.exists():
-            pd.read_csv(CSV_PATH).to_sql("complaints", conn, if_exists="append", index=False)
+    try:
+        DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with get_connection() as conn:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS complaints (
+                    id           TEXT PRIMARY KEY,
+                    created_date TEXT NOT NULL,
+                    closed_date  TEXT,
+                    area         TEXT NOT NULL,
+                    category     TEXT NOT NULL,
+                    priority     TEXT,
+                    status       TEXT NOT NULL DEFAULT 'Pending',
+                    description  TEXT NOT NULL
+                )
+            """)
+            count = conn.execute("SELECT COUNT(*) FROM complaints").fetchone()[0]
+            if count == 0 and CSV_PATH.exists():
+                try:
+                    df = pd.read_csv(CSV_PATH)
+                    df.to_sql("complaints", conn, if_exists="append", index=False)
+                    conn.commit()
+                except Exception as e:
+                    st.warning(f"Could not load sample data: {e}")
+    except Exception as e:
+        st.error(f"Database initialization failed: {e}")
 
 
 init_db()
@@ -700,31 +732,35 @@ if st.session_state.is_admin:
     with tab_update:
         if not df.empty:
             sel_id = st.selectbox("Select Complaint", df["id"].tolist(), key="adm_sel")
-            row    = df[df["id"] == sel_id].iloc[0]
-            u1, u2, u3 = st.columns(3)
-            upd_status   = u1.selectbox("Status", ["Pending", "In Progress", "Closed"],
-                                        index=["Pending", "In Progress", "Closed"].index(row.get("status", "Pending")), key="adm_status")
-            upd_area     = u2.selectbox("Area", areas, index=areas.index(row["area"]), key="adm_area")
-            upd_priority = u3.selectbox("Priority", ["Low", "Medium", "High"],
-                                        index=["Low", "Medium", "High"].index(row.get("priority", "Medium")) if row.get("priority") in ["Low", "Medium", "High"] else 1, key="adm_pri")
-            upd_category = st.selectbox("Category", categories, index=categories.index(row["category"]), key="adm_cat")
-            upd_closed   = st.date_input("Closed Date", value=date.today(), key="adm_closed") if upd_status == "Closed" else None
-            upd_desc     = st.text_area("Description", value=row.get("description", ""), key="adm_desc")
-            if st.button("Save Changes", use_container_width=True, key="adm_save"):
-                closed_val = upd_closed.isoformat() if upd_closed else None
-                try:
-                    with get_connection() as conn:
-                        conn.execute("""
-                            UPDATE complaints
-                            SET status = ?, priority = ?, area = ?, category = ?, closed_date = ?, description = ?
-                            WHERE id = ?
-                        """, (upd_status, upd_priority, upd_area, upd_category, closed_val, upd_desc, sel_id))
-                        conn.commit()
-                    st.success(f"Updated {sel_id}")
-                    _refresh()
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"Failed to update complaint: {e}")
+            matching_rows = df[df["id"] == sel_id]
+            if matching_rows.empty:
+                st.warning("Selected complaint not found in filtered data")
+            else:
+                row    = matching_rows.iloc[0]
+                u1, u2, u3 = st.columns(3)
+                upd_status   = u1.selectbox("Status", ["Pending", "In Progress", "Closed"],
+                                            index=["Pending", "In Progress", "Closed"].index(row.get("status", "Pending")), key="adm_status")
+                upd_area     = u2.selectbox("Area", areas, index=areas.index(row["area"]) if row["area"] in areas else 0, key="adm_area")
+                upd_priority = u3.selectbox("Priority", ["Low", "Medium", "High"],
+                                            index=["Low", "Medium", "High"].index(row.get("priority", "Medium")) if row.get("priority") in ["Low", "Medium", "High"] else 1, key="adm_pri")
+                upd_category = st.selectbox("Category", categories, index=categories.index(row["category"]) if row["category"] in categories else 0, key="adm_cat")
+                upd_closed   = st.date_input("Closed Date", value=date.today(), key="adm_closed") if upd_status == "Closed" else None
+                upd_desc     = st.text_area("Description", value=row.get("description", ""), key="adm_desc")
+                if st.button("Save Changes", use_container_width=True, key="adm_save"):
+                    closed_val = upd_closed.isoformat() if upd_closed else None
+                    try:
+                        with get_connection() as conn:
+                            conn.execute("""
+                                UPDATE complaints
+                                SET status = ?, priority = ?, area = ?, category = ?, closed_date = ?, description = ?
+                                WHERE id = ?
+                            """, (upd_status, upd_priority, upd_area, upd_category, closed_val, upd_desc, sel_id))
+                            conn.commit()
+                        st.success(f"Updated {sel_id}")
+                        _refresh()
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Failed to update complaint: {e}")
         else:
             st.info("No complaints available.")
 
