@@ -173,62 +173,26 @@ section[data-testid="stSidebar"] hr { border-color: rgba(255, 255, 255, 0.05); }
 * { outline: none !important; }
 *:focus, *:active, *:focus-visible { outline: none !important; box-shadow: none !important; }
 
-div[data-testid="stTextInput"] > div, 
-div[data-testid="stTextArea"] > div, 
-div[data-testid="stSelectbox"] > div,
-div[data-testid="stDateInput"] > div,
-div[data-baseweb="input"], 
-div[data-baseweb="base-input"] {
-  border-radius: 14px !important;
-  border: none !important;
-  background: transparent !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-
+/* Let theme secondaryBackgroundColor handle widget backgrounds.
+   Only override border-radius, borders and focus ring. */
 div[data-testid="stTextInput"] [data-baseweb="base-input"],
 div[data-testid="stTextArea"] [data-baseweb="base-input"],
-div[data-testid="stDateInput"] [data-baseweb="base-input"] {
-  background: rgba(255,255,255,0.06) !important; 
-  border: 1px solid rgba(255,255,255,0.1) !important; 
-  border-radius: 14px !important; 
-  backdrop-filter: blur(10px) !important;
-  padding: 0 16px !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-/* Selectbox — nuclear override for BaseWeb black background */
-div[data-testid="stSelectbox"] [data-baseweb="select"],
-div[data-testid="stSelectbox"] [data-baseweb="select"] > div,
-div[data-testid="stSelectbox"] [data-baseweb="select"] > div > div,
-div[data-testid="stSelectbox"] [data-baseweb="select"] > div > div > div,
-div[data-testid="stSelectbox"] [role="combobox"],
-div[data-testid="stSelectbox"] button,
-div[data-testid="stSelectbox"] input {
-  background-color: rgba(255,255,255,0.06) !important;
-  background: rgba(255,255,255,0.06) !important;
-}
+div[data-testid="stDateInput"] [data-baseweb="base-input"],
 div[data-testid="stSelectbox"] [data-baseweb="select"] > div {
   border: 1px solid rgba(255,255,255,0.12) !important;
   border-radius: 14px !important;
-  backdrop-filter: blur(10px) !important;
-  transition: all 0.3s ease !important;
-}
-div[data-testid="stSelectbox"] [data-baseweb="select"] > div:hover {
-  background-color: rgba(255,255,255,0.1) !important;
-  background: rgba(255,255,255,0.1) !important;
-  border-color: rgba(99,102,241,0.5) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 div[data-testid="stTextInput"] [data-baseweb="base-input"]:focus-within,
 div[data-testid="stTextArea"] [data-baseweb="base-input"]:focus-within,
-div[data-testid="stDateInput"] [data-baseweb="base-input"]:focus-within {
-  border-color: rgba(99,102,241,0.8) !important; 
-  background: rgba(255,255,255,0.08) !important;
+div[data-testid="stDateInput"] [data-baseweb="base-input"]:focus-within,
+div[data-testid="stSelectbox"] [data-baseweb="select"] > div:focus-within {
+  border-color: rgba(99,102,241,0.8) !important;
   box-shadow: 0 0 0 2px rgba(99,102,241,0.2) !important;
 }
 
-div[data-testid="stTextInput"] input, 
+div[data-testid="stTextInput"] input,
 div[data-testid="stTextArea"] textarea {
   background: transparent !important;
   border: none !important;
