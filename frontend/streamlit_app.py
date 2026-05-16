@@ -14,12 +14,26 @@ import plotly.graph_objects as go
 import streamlit as st
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-# Handle both local and Streamlit Cloud environments
-# frontend/streamlit_app.py lives one level below the project root,
-# so we go up one directory to reach the shared data/ folder.
-BASE_DIR = Path(__file__).resolve().parent.parent
-DB_PATH  = BASE_DIR / "data" / "complaints.db"
-CSV_PATH = BASE_DIR / "data" / "sample_complaints.csv"
+# Resolve data/ folder regardless of where Streamlit launches the script from.
+# Candidates in priority order:
+#   1. <repo_root>/data/  (local: frontend/streamlit_app.py → parent.parent)
+#   2. data/ relative to cwd (Streamlit Cloud runs from repo root)
+#   3. /tmp/  (Vercel / read-only filesystems)
+def _find_data_dir() -> Path:
+    candidates = [
+        Path(__file__).resolve().parent.parent / "data",  # local
+        Path.cwd() / "data",                               # Streamlit Cloud
+    ]
+    for c in candidates:
+        if c.exists():
+            return c
+    # None found — use first candidate and create it
+    candidates[0].mkdir(parents=True, exist_ok=True)
+    return candidates[0]
+
+DATA_DIR = _find_data_dir()
+DB_PATH  = DATA_DIR / "complaints.db"
+CSV_PATH = DATA_DIR / "sample_complaints.csv"
 
 # Ensure data directory exists
 DB_PATH.parent.mkdir(parents=True, exist_ok=True)
