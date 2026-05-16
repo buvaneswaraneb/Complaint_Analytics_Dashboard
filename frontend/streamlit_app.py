@@ -185,27 +185,24 @@ section[data-testid="stSidebar"] hr { border-color: rgba(255, 255, 255, 0.05); }
 
 /* Global Focus & Input Overrides */
 * { outline: none !important; }
-*:focus, *:active, *:focus-visible { outline: none !important; box-shadow: none !important; }
+*:focus, *:active, *:focus-visible { outline: none !important; }
 
-/* Let theme secondaryBackgroundColor handle widget backgrounds.
-   Only override border-radius, borders and focus ring. */
+/* ── Widget backgrounds ── */
+/* Text inputs & date inputs */
 div[data-testid="stTextInput"] [data-baseweb="base-input"],
 div[data-testid="stTextArea"] [data-baseweb="base-input"],
-div[data-testid="stDateInput"] [data-baseweb="base-input"],
-div[data-testid="stSelectbox"] [data-baseweb="select"] > div {
+div[data-testid="stDateInput"] [data-baseweb="base-input"] {
+  background: #2a2d3e !important;
   border: 1px solid rgba(255,255,255,0.12) !important;
   border-radius: 14px !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
-
 div[data-testid="stTextInput"] [data-baseweb="base-input"]:focus-within,
 div[data-testid="stTextArea"] [data-baseweb="base-input"]:focus-within,
-div[data-testid="stDateInput"] [data-baseweb="base-input"]:focus-within,
-div[data-testid="stSelectbox"] [data-baseweb="select"] > div:focus-within {
+div[data-testid="stDateInput"] [data-baseweb="base-input"]:focus-within {
   border-color: rgba(99,102,241,0.8) !important;
   box-shadow: 0 0 0 2px rgba(99,102,241,0.2) !important;
 }
-
 div[data-testid="stTextInput"] input,
 div[data-testid="stTextArea"] textarea {
   background: transparent !important;
@@ -213,9 +210,41 @@ div[data-testid="stTextArea"] textarea {
   color: #f1f5f9 !important;
 }
 
+/* Selectbox */
+div[data-testid="stSelectbox"] [data-baseweb="select"] > div {
+  background: #2a2d3e !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  border-radius: 14px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+div[data-testid="stSelectbox"] [data-baseweb="select"] > div:hover {
+  border-color: rgba(99,102,241,0.5) !important;
+  background: #32364a !important;
+}
+/* Hide the search input inside selectbox dropdown — keep it as a pure dropdown */
+div[data-testid="stSelectbox"] input {
+  display: none !important;
+}
+/* Style the dropdown list */
+[data-baseweb="popover"] [data-baseweb="menu"] {
+  background: #1e2130 !important;
+  border: 1px solid rgba(99,102,241,0.3) !important;
+  border-radius: 12px !important;
+}
+[data-baseweb="popover"] [role="option"] {
+  background: transparent !important;
+  color: #e2e8f0 !important;
+  border-radius: 8px !important;
+}
+[data-baseweb="popover"] [role="option"]:hover,
+[data-baseweb="popover"] [aria-selected="true"] {
+  background: rgba(99,102,241,0.2) !important;
+  color: #a5b4fc !important;
+}
+
 input:-webkit-autofill {
   -webkit-text-fill-color: #f1f5f9 !important;
-  -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
+  -webkit-box-shadow: 0 0 0px 1000px #2a2d3e inset !important;
 }
 ::selection { background: rgba(99,102,241,0.3); color: white; }
 div[data-testid="InputInstructions"] { display: none !important; }
