@@ -1,10 +1,9 @@
 # 📊 Complaint Analytics Dashboard
 
-A real-time public service complaint intelligence dashboard built with **Streamlit**, **FastAPI**, **Plotly**, and **SQLite**. Visualize complaint trends, track resolution rates, and manage records across a distributed cloud architecture.
+A real-time public service complaint intelligence dashboard built with **Streamlit**, **Plotly**, and **SQLite**. Visualize complaint trends, track resolution rates, and manage complaint records with an intuitive admin interface.
 
-### 🌐 Live Links
+### 🌐 Live Demo
 - **Production Dashboard**: [https://complaintanalyticsdashboard.streamlit.app/](https://complaintanalyticsdashboard.streamlit.app/)
-- **Backend API (Vercel)**: [https://complaint-analytics-dashboard-k20j.vercel.app/docs](https://complaint-analytics-dashboard-k20j.vercel.app/docs)
 
 ---
 
@@ -17,8 +16,8 @@ A real-time public service complaint intelligence dashboard built with **Streaml
 - **Admin Panel** — Secure 2-step login (username + password) to update or delete complaints
 - **Auto Refresh** — Dashboard updates automatically after every admin or user action
 - **CSV Export** — Download filtered complaint records as a CSV file
-- **Full Stack Architecture** — Streamlit frontend hosted on Streamlit Cloud, talking to a FastAPI backend on Vercel
-- **Persistent SQLite** — Database logic optimized for serverless environments with /tmp storage support
+- **Direct Database Access** — Streamlit frontend reads and writes directly to SQLite database
+- **Professional UI** — Dark theme with gradient styling and smooth animations
 
 ---
 
@@ -27,12 +26,10 @@ A real-time public service complaint intelligence dashboard built with **Streaml
 | Layer | Technology |
 |-------|-----------|
 | Frontend | [Streamlit](https://streamlit.io/) |
-| Backend | [FastAPI](https://fastapi.tiangolo.com/) |
-| API Hosting | [Vercel](https://vercel.com/) |
 | Charts | [Plotly](https://plotly.com/python/) |
 | Database | SQLite (via Python `sqlite3`) |
-| Data | [Pandas](https://pandas.pydata.org/) |
-| Styling | Custom CSS + Inter font |
+| Data Processing | [Pandas](https://pandas.pydata.org/) |
+| Styling | Custom CSS + Outfit font |
 
 ---
 
@@ -48,11 +45,11 @@ A real-time public service complaint intelligence dashboard built with **Streaml
 git clone https://github.com/adithyanks2005/Complaint_Analytics_Dashboard.git
 cd Complaint_Analytics_Dashboard
 
-# 2. Run the setup script (creates venv and installs dependencies)
-setup.bat
+# 2. Install dependencies
+pip install -r requirements.txt
 
 # 3. Launch the dashboard
-run_dashboard.bat
+streamlit run frontend/streamlit_app.py
 ```
 
 The dashboard will open at `http://localhost:8501`
@@ -65,18 +62,14 @@ The dashboard will open at `http://localhost:8501`
 Complaint_Analytics_Dashboard/
 ├── frontend/
 │   └── streamlit_app.py      # Main Streamlit application
-├── backend/
-│   ├── main.py               # FastAPI backend (optional)
-│   ├── analytics.py          # Analytics logic
-│   └── database.py           # Database helpers
 ├── data/
+│   ├── complaints.db         # SQLite database
 │   └── sample_complaints.csv # Seed data
 ├── tests/
 │   └── test_api.py           # API tests
-├── run_dashboard.bat         # Launch dashboard
-├── run_backend.bat           # Launch backend (optional)
 ├── setup.bat                 # Environment setup
-└── requirements.txt          # Python dependencies
+├── requirements.txt          # Python dependencies
+└── README.md                 # This file
 ```
 
 ---
