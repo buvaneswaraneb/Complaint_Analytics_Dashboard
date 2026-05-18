@@ -9,15 +9,26 @@ from datetime import date, datetime
 from pathlib import Path
 
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-# Handle both local and Streamlit Cloud environments
-BASE_DIR = Path(__file__).resolve().parent
-DB_PATH  = BASE_DIR / "data" / "complaints.db"
-CSV_PATH = BASE_DIR / "data" / "sample_complaints.csv"
+# Resolve data/ folder regardless of where Streamlit launches the script from.
+def _find_data_dir() -> Path:
+    candidates = [
+        Path(__file__).resolve().parent / "data",          # root-level data/
+        Path(__file__).resolve().parent.parent / "data",   # one level up
+        Path.cwd() / "data",                               # Streamlit Cloud
+    ]
+    for c in candidates:
+        if c.exists():
+            return c
+    candidates[0].mkdir(parents=True, exist_ok=True)
+    return candidates[0]
+
+DATA_DIR = _find_data_dir()
+DB_PATH  = DATA_DIR / "complaints.db"
+CSV_PATH = DATA_DIR / "sample_complaints.csv"
 
 # Ensure data directory exists
 DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -205,9 +216,10 @@ div[data-testid="stSelectbox"] [data-baseweb="select"] > div:hover {
   border-color: rgba(99,102,241,0.5) !important;
   background: #32364a !important;
 }
-/* Hide the search input inside selectbox dropdown — keep it as a pure dropdown */
+/* Make selectbox input text visible but keep it minimal */
 div[data-testid="stSelectbox"] input {
-  display: none !important;
+  color: #f1f5f9 !important;
+  caret-color: transparent !important;
 }
 /* Style the dropdown list */
 [data-baseweb="popover"] [data-baseweb="menu"] {
@@ -343,9 +355,9 @@ with st.sidebar:
     st.markdown("---")
 
     all_df = load_all()
-    areas      = sorted(all_df["area"].dropna().unique().tolist())
-    categories = sorted(all_df["category"].dropna().unique().tolist())
-    statuses   = sorted(all_df["status"].dropna().unique().tolist())
+    areas      = sorted(all_df["area"].dropna().unique().tolist())      or ["General"]
+    categories = sorted(all_df["category"].dropna().unique().tolist())  or ["General"]
+    statuses   = sorted(all_df["status"].dropna().unique().tolist())    or ["Pending"]
 
     st.markdown("### Filters")
     start_date = st.date_input("Start Date", value=date(2025, 1, 1))
@@ -460,7 +472,7 @@ main_col = st.container()
 
 with main_col:
     now_str    = datetime.now().strftime("%b %d, %Y · %H:%M")
-    date_range = f"{start_date.strftime('%b %d')} → {end_date.strftime('%b %d, %Y')}"
+    date_range = f"{af['start_date'].strftime('%b %d')} → {af['end_date'].strftime('%b %d, %Y')}"
     admin_badge = '<span class="header-badge" style="background:rgba(99,102,241,0.3);border-color:rgba(139,92,246,0.6)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin</span>' if st.session_state.is_admin else ""
 
     st.markdown(f"""
@@ -663,7 +675,9 @@ with main_col:
         display_df = df.drop(columns=["closure_days"], errors="ignore").copy()
         for col in ["created_date", "closed_date"]:
             if col in display_df.columns:
-                display_df[col] = display_df[col].dt.strftime("%Y-%m-%d")
+                display_df[col] = display_df[col].apply(
+                    lambda x: x.strftime("%Y-%m-%d") if pd.notna(x) else ""
+                )
         if not display_df.empty:
             st.dataframe(display_df, use_container_width=True, height=400)
             csv_data = display_df.to_csv(index=False).encode("utf-8")
@@ -732,13 +746,13 @@ if st.session_state.is_admin:
                 row    = matching_rows.iloc[0]
                 u1, u2, u3 = st.columns(3)
                 upd_status   = u1.selectbox("Status", ["Pending", "In Progress", "Closed"],
-                                            index=["Pending", "In Progress", "Closed"].index(row.get("status", "Pending")), key="adm_status")
+                                            index=["Pending", "In Progress", "Closed"].index(row["status"]) if row["status"] in ["Pending", "In Progress", "Closed"] else 0, key="adm_status")
                 upd_area     = u2.selectbox("Area", areas, index=areas.index(row["area"]) if row["area"] in areas else 0, key="adm_area")
                 upd_priority = u3.selectbox("Priority", ["Low", "Medium", "High"],
-                                            index=["Low", "Medium", "High"].index(row.get("priority", "Medium")) if row.get("priority") in ["Low", "Medium", "High"] else 1, key="adm_pri")
+                                            index=["Low", "Medium", "High"].index(row["priority"]) if pd.notna(row["priority"]) and row["priority"] in ["Low", "Medium", "High"] else 1, key="adm_pri")
                 upd_category = st.selectbox("Category", categories, index=categories.index(row["category"]) if row["category"] in categories else 0, key="adm_cat")
                 upd_closed   = st.date_input("Closed Date", value=date.today(), key="adm_closed") if upd_status == "Closed" else None
-                upd_desc     = st.text_area("Description", value=row.get("description", ""), key="adm_desc")
+                upd_desc     = st.text_area("Description", value=str(row["description"]) if pd.notna(row["description"]) else "", key="adm_desc")
                 if st.button("Save Changes", use_container_width=True, key="adm_save"):
                     closed_val = upd_closed.isoformat() if upd_closed else None
                     try:
