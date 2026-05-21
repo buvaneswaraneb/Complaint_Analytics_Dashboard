@@ -487,7 +487,7 @@ category_df = (
 main_col = st.container()
 
 with main_col:
-    now_str    = datetime.now(timezone.utc).strftime("%b %d, %Y · %H:%M")
+    now_str    = datetime.now().strftime("%b %d, %Y · %H:%M")
     date_range = f"{af['start_date'].strftime('%b %d')} → {af['end_date'].strftime('%b %d, %Y')}"
     admin_badge = '<span class="header-badge" style="background:rgba(99,102,241,0.3);border-color:rgba(139,92,246,0.6)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin</span>' if st.session_state.is_admin else ""
 
