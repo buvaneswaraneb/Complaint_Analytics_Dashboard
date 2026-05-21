@@ -512,10 +512,15 @@ with main_col:
 </div>
 """, unsafe_allow_html=True)
 
+    # Print to Python server console
+    current_time_str = datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
+    print(f"[INFO] Current Server/Device Local Time: {current_time_str}")
+
     # Inject JS to show browser's local time (updates every second)
     st.markdown("""
 <script>
 (function() {
+  var hasLogged = false;
   function updateClock() {
     try {
       var parentWin = window.parent || window;
@@ -527,13 +532,25 @@ with main_col:
         var formatter = new parentWin.Intl.DateTimeFormat(undefined, options);
         var formatted = formatter.format(now).replace(',', '');
         el.textContent = formatted;
+        if (!hasLogged) {
+          console.log("[INFO] Live clock initialized inside iframe.");
+          console.log("[INFO] Browser Timezone:", parentWin.Intl.DateTimeFormat().resolvedOptions().timeZone);
+          console.log("[INFO] Current Device Time:", formatted);
+          hasLogged = true;
+        }
       }
     } catch (e) {
       var el = document.getElementById('live-clock');
       if (el) {
         var now = new Date();
         var options = { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-        el.textContent = now.toLocaleString(undefined, options).replace(',', '');
+        var formatted = now.toLocaleString(undefined, options).replace(',', '');
+        el.textContent = formatted;
+        if (!hasLogged) {
+          console.log("[INFO] Browser Timezone (fallback):", Intl.DateTimeFormat().resolvedOptions().timeZone);
+          console.log("[INFO] Current Device Time (fallback):", formatted);
+          hasLogged = true;
+        }
       }
     }
   }
@@ -541,6 +558,7 @@ with main_col:
   setInterval(updateClock, 1000);
 })();
 </script>
+
 
 """, unsafe_allow_html=True)
 
