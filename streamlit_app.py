@@ -43,7 +43,7 @@ def _find_data_dir() -> Path:
 
 DATA_DIR = _find_data_dir()
 DB_PATH  = DATA_DIR / "complaints.db"
-CSV_PATH = DATA_DIR / "sample_complaints.csv"
+CSV_PATH = DATA_DIR / "demo_complaints.csv"
 
 # Ensure data directory exists
 DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -350,6 +350,11 @@ with st.sidebar:
     # Get distinct areas and categories from data. If none exist, keep list empty.
     areas = sorted(all_df["area"].dropna().unique().tolist())
     categories = sorted(all_df["category"].dropna().unique().tolist())
+    # Fallback defaults to avoid empty dropdowns
+    if not areas:
+        areas = ["General"]
+    if not categories:
+        categories = ["General"]
     statuses   = sorted(all_df["status"].dropna().unique().tolist())    or ["Pending"]
 
     st.markdown("### Filters")
