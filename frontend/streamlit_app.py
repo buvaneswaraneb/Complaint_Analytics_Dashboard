@@ -187,23 +187,38 @@ section[data-testid="stSidebar"] hr { border-color: rgba(255, 255, 255, 0.05); }
 *:focus, *:active, *:focus-visible { outline: none !important; }
 
 /* ── Widget backgrounds ── */
-/* Text inputs & date inputs */
-div[data-testid="stTextInput"] [data-baseweb="base-input"],
-div[data-testid="stTextArea"] [data-baseweb="base-input"],
-div[data-testid="stDateInput"] [data-baseweb="base-input"] {
+/* Text inputs, text areas & date inputs */
+div[data-testid="stTextInput"] [data-baseweb="input"],
+div[data-testid="stTextArea"] [data-baseweb="textarea"],
+div[data-testid="stDateInput"] [data-baseweb="input"] {
   background: #2a2d3e !important;
   border: 1px solid rgba(255,255,255,0.12) !important;
   border-radius: 14px !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
-div[data-testid="stTextInput"] [data-baseweb="base-input"]:focus-within,
-div[data-testid="stTextArea"] [data-baseweb="base-input"]:focus-within,
-div[data-testid="stDateInput"] [data-baseweb="base-input"]:focus-within {
-  border-color: rgba(99,102,241,0.8) !important;
-  box-shadow: 0 0 0 2px rgba(99,102,241,0.2) !important;
+div[data-testid="stTextInput"] [data-baseweb="input"]:focus-within,
+div[data-testid="stTextArea"] [data-baseweb="textarea"]:focus-within,
+div[data-testid="stDateInput"] [data-baseweb="input"]:focus-within {
+  border-color: rgba(99, 102, 241, 0.8) !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2) !important;
+}
+div[data-testid="stTextInput"] [data-baseweb="base-input"],
+div[data-testid="stTextArea"] [data-baseweb="base-input"],
+div[data-testid="stDateInput"] [data-baseweb="base-input"] {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+div[data-testid="stTextInput"] [data-baseweb="base-input"]:hover,
+div[data-testid="stTextArea"] [data-baseweb="base-input"]:hover,
+div[data-testid="stDateInput"] [data-baseweb="base-input"]:hover {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 div[data-testid="stTextInput"] input,
-div[data-testid="stTextArea"] textarea {
+div[data-testid="stTextArea"] textarea,
+div[data-testid="stDateInput"] input {
   background: transparent !important;
   border: none !important;
   color: #f1f5f9 !important;
