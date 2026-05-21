@@ -517,20 +517,31 @@ with main_col:
 <script>
 (function() {
   function updateClock() {
-    var el = window.parent.document.getElementById('live-clock');
-    if (!el) { el = document.getElementById('live-clock'); }
-    if (el) {
-      var now = new Date();
-      var options = { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone };
-
-      var formatted = now.toLocaleString(undefined, options).replace(',', '');
-      el.textContent = formatted;
+    try {
+      var parentWin = window.parent || window;
+      var el = parentWin.document.getElementById('live-clock');
+      if (!el) { el = document.getElementById('live-clock'); }
+      if (el) {
+        var now = new parentWin.Date();
+        var options = { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+        var formatter = new parentWin.Intl.DateTimeFormat(undefined, options);
+        var formatted = formatter.format(now).replace(',', '');
+        el.textContent = formatted;
+      }
+    } catch (e) {
+      var el = document.getElementById('live-clock');
+      if (el) {
+        var now = new Date();
+        var options = { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+        el.textContent = now.toLocaleString(undefined, options).replace(',', '');
+      }
     }
   }
   updateClock();
   setInterval(updateClock, 1000);
 })();
 </script>
+
 """, unsafe_allow_html=True)
 
     st.markdown(f"""
