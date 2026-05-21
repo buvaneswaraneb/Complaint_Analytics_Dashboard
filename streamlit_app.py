@@ -5,7 +5,7 @@ Talks directly to the SQLite database (no backend required)
 from __future__ import annotations
 
 import sqlite3
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timezone, timedelta
 from pathlib import Path
 
 import pandas as pd
@@ -521,7 +521,7 @@ with main_col:
     if (!el) { el = document.getElementById('live-clock'); }
     if (el) {
       var now = new Date();
-      var options = { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+      var options = { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Asia/Kolkata' };
       var formatted = now.toLocaleString(undefined, options).replace(',', '');
       el.textContent = formatted;
     }
@@ -747,6 +747,7 @@ with main_col:
 
             new_desc     = st.text_area("Description", placeholder="Min 10 characters", key=f"new_desc_f_{st.session_state.form_key_f}")
 
+
             if st.form_submit_button("Submit"):
                 if len(new_desc.strip()) < 10:
                     st.error("Description too short")
@@ -756,7 +757,7 @@ with main_col:
                             conn.execute("""
                                 INSERT INTO complaints (id, created_date, area, category, status, description)
                                 VALUES (?, ?, ?, ?, ?, ?)
-                            """, (new_id.strip(), datetime.now().isoformat(), new_area, new_category, "Pending", new_desc.strip()))
+                            """, (new_id.strip(), datetime.now(timezone(timedelta(hours=5, minutes=30))).isoformat(), new_area, new_category, "Pending", new_desc.strip()))
                             conn.commit()
                         st.session_state.submit_msg = f"Complaint {new_id} registered"
                         st.session_state.form_key_f += 1
