@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from datetime import date
 from io import StringIO
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Optional
 
 from fastapi import FastAPI, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -58,8 +58,8 @@ if _frontend_dir.exists():
     app.mount("/app", StaticFiles(directory=str(_frontend_dir), html=True), name="frontend")
 
 
-class ComplaintCreate(BaseModel):
-    id:           str  = Field(min_length=3, max_length=20, examples=["CMP-101"])
+class ComplaintCreateInput(BaseModel):
+    id: Optional[str] = Field(default=None, min_length=3, max_length=20, examples=["CMP-101"])
     created_date: date
     area:         str  = Field(min_length=2, max_length=50)
     category:     str  = Field(min_length=2, max_length=50)
@@ -67,7 +67,7 @@ class ComplaintCreate(BaseModel):
 
     @field_validator("id", "area", "category", mode="before")
     @classmethod
-    def strip_strings(cls, v: str) -> str:
+    def strip_strings(cls, v: Optional[str]) -> Optional[str]:
         return v.strip() if isinstance(v, str) else v
 
     @field_validator("description", mode="before")
@@ -78,6 +78,10 @@ class ComplaintCreate(BaseModel):
             if len(v) < 10:
                 raise ValueError("description must be at least 10 non-whitespace characters")
         return v
+
+# Keep original ComplaintCreate for internal use if needed (optional)
+class ComplaintCreate(ComplaintCreateInput):
+    pass
 
 
 class ComplaintUpdate(BaseModel):
@@ -176,7 +180,7 @@ def get_complaint(complaint_id: str) -> dict[str, object]:
 
 
 @app.post("/complaints", status_code=status.HTTP_201_CREATED)
-def create_complaint(payload: ComplaintCreate) -> dict[str, object]:
+def create_complaint(payload: ComplaintCreateInput) -> dict[str, object]:
     try:
         return insert_complaint(
             {
