@@ -379,7 +379,7 @@ with st.sidebar:
 
     all_df = load_all()
     areas      = sorted(all_df["area"].dropna().unique().tolist())      or ["General"]
-    categories = sorted(all_df["category"].dropna().unique().tolist())  or ["General"]
+    categories = sorted({"General", *all_df["category"].dropna().unique().tolist()})
     statuses   = sorted(all_df["status"].dropna().unique().tolist())    or ["Pending"]
 
     st.markdown("### Filters")
