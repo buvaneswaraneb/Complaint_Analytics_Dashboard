@@ -390,7 +390,7 @@ with st.sidebar:
     sel_status   = st.selectbox("Status",   ["All", *statuses])
 
     st.markdown("---")
-    st.markdown("### Secure Access")
+    st.markdown("### Admin")
 
     if st.session_state.is_admin:
         st.success("Admin mode active")
@@ -433,7 +433,7 @@ with st.sidebar:
             st.session_state.login_step = 1
             st.rerun()
     else:
-        if st.button("Admin Panel", use_container_width=True):
+        if st.button("Login", use_container_width=True):
             st.session_state.login_step = 1
             st.rerun()
 af = {
