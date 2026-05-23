@@ -757,7 +757,7 @@ with main_col:
                     lambda x: x.strftime("%Y-%m-%d") if pd.notna(x) else ""
                 )
         if not display_df.empty:
-            st.dataframe(display_df, use_container_width=True, height=400)
+            st.dataframe(display_df, use_container_width=True, height=400, hide_index=True)
             csv_data = display_df.to_csv(index=False).encode("utf-8")
             st.download_button("Export CSV", data=csv_data, file_name="complaints_export.csv", mime="text/csv")
         else:
