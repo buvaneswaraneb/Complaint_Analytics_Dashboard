@@ -82,23 +82,17 @@ def _is_duplicate_error(exc: Exception) -> bool:
 
 
 def generate_next_id() -> str:
-    """Return the smallest positive integer ID not currently used.
-    IDs follow the pattern 'CMP-<number>'. This function extracts the numeric part and finds the smallest unused number.
-    """
+    """Return the next continuous complaint ID using the highest existing number."""
     with get_connection() as conn:
         rows = conn.execute("SELECT id FROM complaints").fetchall()
-        used = set()
+        highest = 0
         for row in rows:
             id_str = str(row["id"]).strip()
             if "-" in id_str:
                 suffix = id_str.split("-")[-1]
                 if suffix.isdigit():
-                    used.add(int(suffix))
-        # If there are existing IDs without hyphen, ignore them for numeric generation.
-    i = 1
-    while i in used:
-        i += 1
-    return f"CMP-{i:03d}"
+                    highest = max(highest, int(suffix))
+    return f"CMP-{highest + 1:03d}"
 
 
 def generate_next_id_supabase() -> str:
@@ -106,11 +100,11 @@ def generate_next_id_supabase() -> str:
     client = get_supabase_client()
     response = client.table(SUPABASE_TABLE).select("id").execute()
     ids = [rec["id"] for rec in (response.data or [])]
-    used = {int(id.split('-')[-1]) for id in ids if id.split('-')[-1].isdigit()}
-    i = 1
-    while i in used:
-        i += 1
-    return f"CMP-{i:03d}"
+    highest = max(
+        (int(id.split("-")[-1]) for id in ids if str(id).split("-")[-1].isdigit()),
+        default=0,
+    )
+    return f"CMP-{highest + 1:03d}"
 
 
 

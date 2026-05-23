@@ -5,7 +5,6 @@ Uses Supabase when configured, with SQLite as the local fallback
 from __future__ import annotations
 
 import sys
-import secrets
 from datetime import date, datetime
 from pathlib import Path
 
@@ -23,10 +22,13 @@ if str(PROJECT_ROOT) not in sys.path:
 from backend.database import (
     DuplicateComplaintError,
     delete_complaint_record,
+    generate_next_id,
+    generate_next_id_supabase,
     insert_complaint,
     init_db,
     read_complaints_df,
     update_complaint_record,
+    using_supabase,
 )
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
@@ -334,7 +336,7 @@ if "login_uid_input" not in st.session_state: st.session_state.login_uid_input =
 if "drawer_open"     not in st.session_state: st.session_state.drawer_open     = False
 if "submit_msg"      not in st.session_state: st.session_state.submit_msg      = None
 if "new_complaint_id" not in st.session_state:
-    st.session_state.new_complaint_id = f"CMP-{datetime.now().strftime('%Y%m%d')}-{secrets.token_hex(3).upper()}"
+    st.session_state.new_complaint_id = None
 
 
 # ── Data Helpers ───────────────────────────────────────────────────────────────
@@ -365,6 +367,10 @@ def filter_df(df, start, end, area, category, status):
 
 def _refresh():
     st.cache_data.clear()
+
+
+def get_next_complaint_id() -> str:
+    return generate_next_id_supabase() if using_supabase() else generate_next_id()
 
 # ── Sidebar ────────────────────────────────────────────────────────────────────
 with st.sidebar:
@@ -772,6 +778,8 @@ with main_col:
 
         if "form_key_f" not in st.session_state:
             st.session_state.form_key_f = 0
+        if not st.session_state.new_complaint_id:
+            st.session_state.new_complaint_id = get_next_complaint_id()
 
         with st.form("new_complaint", clear_on_submit=False):
             c1, c2, c3 = st.columns(3)
@@ -798,7 +806,7 @@ with main_col:
                         })
                         st.session_state.submit_msg = f"Complaint {new_id} registered"
                         st.session_state.form_key_f += 1
-                        st.session_state.new_complaint_id = f"CMP-{datetime.now().strftime('%Y%m%d')}-{secrets.token_hex(3).upper()}"
+                        st.session_state.new_complaint_id = get_next_complaint_id()
                         _refresh()
                         st.rerun()
                     except DuplicateComplaintError:

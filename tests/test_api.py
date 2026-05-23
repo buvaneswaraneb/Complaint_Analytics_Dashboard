@@ -129,7 +129,7 @@ def test_admin_can_close_resolved_complaint():
     client.delete(f"/complaints/{complaint_id}")
 
 
-def test_auto_generated_id_and_reuse():
+def test_auto_generated_id_continues_sequence():
     # Insert first complaint without ID
     payload1 = {
         "created_date": "2026-05-20",
@@ -161,19 +161,19 @@ def test_auto_generated_id_and_reuse():
     delete_resp = client.delete(f"/complaints/{id1}")
     assert delete_resp.status_code == 200
 
-    # Insert third complaint, it should reuse the first ID
+    # Insert third complaint, it should continue after the highest existing ID
     payload3 = {
         "created_date": "2026-05-22",
         "area":         "East Zone",
         "category":     "Garbage",
-        "description":  "Test auto ID reuse",
+        "description":  "Test continuous auto ID generation",
     }
     resp3 = client.post("/complaints", json=payload3)
     assert resp3.status_code == 201
     created3 = resp3.json()
     id3 = created3["id"]
-    
-    assert id3 == id1
+    assert id3.startswith("CMP-")
+    assert int(id3.split("-")[-1]) > int(id2.split("-")[-1])
 
     # Cleanup
     client.delete(f"/complaints/{id2}")
