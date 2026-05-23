@@ -187,8 +187,8 @@ section[data-testid="stSidebar"] hr { border-color: rgba(255, 255, 255, 0.05); }
   z-index: 5;
 }
 
-.kpi-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:10px; background: var(--icon-bg, rgba(99,102,241,0.15)); flex-shrink: 0; transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; }
-.kpi-icon svg { display:block; width:20px; height:20px; transition: transform 0.2s ease, stroke-width 0.2s ease; }
+.kpi-icon { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:10px; background: linear-gradient(135deg, var(--icon-bg, rgba(99,102,241,0.18)), rgba(255,255,255,0.06)); border: 1px solid rgba(255,255,255,0.08); box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 10px 24px var(--glow, rgba(99,102,241,0.18)); flex-shrink: 0; transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; }
+.kpi-icon svg { display:block; width:22px; height:22px; transition: transform 0.2s ease, stroke-width 0.2s ease; }
 .kpi-card:hover .kpi-icon { transform: translateY(-2px); background: rgba(255,255,255,0.08); box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 8px 18px var(--glow, rgba(99,102,241,0.22)); }
 .kpi-card:hover .kpi-icon svg { transform: scale(1.08); stroke-width: 2.1; }
 .kpi-label { font-size: 0.68rem; color: #64748b; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; display: block; }
@@ -298,9 +298,14 @@ div[data-testid="InputInstructions"] { display: none !important; }
     margin: 0 0 0.75rem 0;
 }
 .chart-title svg {
-    width: 24px;
-    height: 24px;
-    flex: 0 0 24px;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    padding: 8px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(99,102,241,0.22), rgba(139,92,246,0.1));
+    border: 1px solid rgba(165,180,252,0.18);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 8px 20px rgba(99,102,241,0.14);
     stroke: #a5b4fc;
     transition: transform 0.2s ease, stroke 0.2s ease, filter 0.2s ease;
 }
