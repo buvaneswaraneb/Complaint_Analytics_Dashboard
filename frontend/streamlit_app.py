@@ -5,12 +5,14 @@ Uses Supabase when configured, with SQLite as the local fallback
 from __future__ import annotations
 
 import sys
+import secrets
 from datetime import date, datetime
 from pathlib import Path
 
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+import streamlit.components.v1 as components
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 if not (PROJECT_ROOT / "backend").exists():
@@ -279,6 +281,23 @@ input:-webkit-autofill {
 ::selection { background: rgba(99,102,241,0.3); color: white; }
 div[data-testid="InputInstructions"] { display: none !important; }
 
+.chart-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #f8fafc;
+    font-size: 1.55rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0 0 0.75rem 0;
+}
+.chart-title svg {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    stroke: #a5b4fc;
+}
+
 /* No Results Styling */
 .no-results-card {
     background: rgba(255,255,255,0.02);
@@ -314,6 +333,8 @@ if "login_step"      not in st.session_state: st.session_state.login_step      =
 if "login_uid_input" not in st.session_state: st.session_state.login_uid_input = ""
 if "drawer_open"     not in st.session_state: st.session_state.drawer_open     = False
 if "submit_msg"      not in st.session_state: st.session_state.submit_msg      = None
+if "new_complaint_id" not in st.session_state:
+    st.session_state.new_complaint_id = f"CMP-{datetime.now().strftime('%Y%m%d')}-{secrets.token_hex(3).upper()}"
 
 
 # ── Data Helpers ───────────────────────────────────────────────────────────────
@@ -518,6 +539,35 @@ with main_col:
 " style="display:none;"/>
 """, unsafe_allow_html=True)
 
+    components.html("""
+<script>
+  (function() {
+    function updateClock() {
+      var clock = window.parent.document.getElementById('live-clock');
+      if (!clock) {
+        return;
+      }
+      var now = new Date();
+      var options = {
+        month: 'short',
+        day: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      };
+      clock.textContent = new Intl.DateTimeFormat(undefined, options).format(now);
+    }
+    updateClock();
+    if (window.parent.liveClockInterval) {
+      window.parent.clearInterval(window.parent.liveClockInterval);
+    }
+    window.parent.liveClockInterval = window.parent.setInterval(updateClock, 1000);
+  })();
+</script>
+""", height=0)
+
     st.markdown(f"""
 <div class="kpi-grid">
   <div class="kpi-card" style="--accent:linear-gradient(90deg,#6366f1,#8b5cf6);--icon-bg:rgba(99,102,241,0.15);--glow:rgba(99,102,241,0.35)">
@@ -597,7 +647,7 @@ with main_col:
     with tab_overview:
         col1, col2 = st.columns(2)
         with col1:
-            st.subheader("Monthly Trend")
+            st.markdown("""<div class="chart-title"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg><span>Monthly Trend</span></div>""", unsafe_allow_html=True)
             if not trend_df.empty:
                 fig = go.Figure(go.Scatter(
                     x=trend_df["month"], y=trend_df["complaints"],
@@ -617,7 +667,7 @@ with main_col:
                 """, unsafe_allow_html=True)
 
         with col2:
-            st.subheader("Category Distribution")
+            st.markdown("""<div class="chart-title"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12c0 4.97-4.03 9-9 9S3 16.97 3 12s4.03-9 9-9v9h9z"/><path d="M13 2.05A9 9 0 0 1 21.95 11H13V2.05z"/></svg><span>Category Distribution</span></div>""", unsafe_allow_html=True)
             if not category_df.empty:
                 fig = go.Figure(go.Pie(
                     labels=category_df["category"], values=category_df["complaints"],
@@ -636,7 +686,7 @@ with main_col:
 
         col3, col4 = st.columns(2)
         with col3:
-            st.subheader("Complaints by Area")
+            st.markdown("""<div class="chart-title"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-4.35 7-11a7 7 0 1 0-14 0c0 6.65 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Complaints by Area</span></div>""", unsafe_allow_html=True)
             if not area_df.empty:
                 sorted_area = area_df.sort_values("complaints")
                 AREA_PALETTE = [
@@ -665,7 +715,7 @@ with main_col:
                 """, unsafe_allow_html=True)
 
         with col4:
-            st.subheader("Avg Closure Days")
+            st.markdown("""<div class="chart-title"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Avg Closure Days</span></div>""", unsafe_allow_html=True)
             if not area_df.empty and "avg_closure_days" in area_df.columns:
                 plot_df = area_df.dropna(subset=["avg_closure_days"])
                 if not plot_df.empty:
@@ -725,7 +775,7 @@ with main_col:
 
         with st.form("new_complaint", clear_on_submit=False):
             c1, c2, c3 = st.columns(3)
-            new_id       = c1.text_input("ID", value=f"CMP-{datetime.now().strftime('%H%M%S')}", disabled=True)
+            new_id       = c1.text_input("ID", value=st.session_state.new_complaint_id, disabled=True)
             new_area     = c2.selectbox("Area", areas, key=f"new_area_f_{st.session_state.form_key_f}")
             new_category = c3.selectbox("Category", categories, key=f"new_category_f_{st.session_state.form_key_f}")
             new_date     = st.date_input("Date", value=date.today(), key=f"new_date_f_{st.session_state.form_key_f}")
@@ -748,6 +798,7 @@ with main_col:
                         })
                         st.session_state.submit_msg = f"Complaint {new_id} registered"
                         st.session_state.form_key_f += 1
+                        st.session_state.new_complaint_id = f"CMP-{datetime.now().strftime('%Y%m%d')}-{secrets.token_hex(3).upper()}"
                         _refresh()
                         st.rerun()
                     except DuplicateComplaintError:
