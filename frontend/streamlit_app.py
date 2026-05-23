@@ -96,10 +96,6 @@ section[data-testid="stSidebar"] hr { border-color: rgba(255, 255, 255, 0.05); }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(99,102,241,0.5); }
 
-/* Fade-in Animation */
-.main .block-container { animation: appFadeIn 1s cubic-bezier(0.16, 1, 0.3, 1); }
-@keyframes appFadeIn { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-
 /* Advanced Page Header */
 .page-header { 
   background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%); 
@@ -331,9 +327,6 @@ div[data-testid="InputInstructions"] { display: none !important; }
 
 # ── Session State ──────────────────────────────────────────────────────────────
 if "is_admin"        not in st.session_state: st.session_state.is_admin        = False
-if "login_step"      not in st.session_state: st.session_state.login_step      = 0   # 0=closed, 1=username, 2=password
-if "login_uid_input" not in st.session_state: st.session_state.login_uid_input = ""
-if "drawer_open"     not in st.session_state: st.session_state.drawer_open     = False
 if "submit_msg"      not in st.session_state: st.session_state.submit_msg      = None
 if "new_complaint_id" not in st.session_state:
     st.session_state.new_complaint_id = None
@@ -393,76 +386,34 @@ with st.sidebar:
     sel_category = st.selectbox("Category", ["All", *categories])
     sel_status   = st.selectbox("Status",   ["All", *statuses])
 
-    apply = st.button("Apply Filters", use_container_width=True)
-
     st.markdown("---")
 
     if st.session_state.is_admin:
-        st.success("🔓 Admin mode active")
+        st.success("Admin mode active")
         if st.button("Logout", use_container_width=True):
-            st.session_state.is_admin    = False
-            st.session_state.login_step  = 0
-            st.session_state.drawer_open = False
-            st.rerun()
-            
-    elif st.session_state.login_step == 1:
-        st.markdown("### 🔐 Admin Access")
-        uid = st.text_input("Admin Name", placeholder="Enter Name", key="uid_field", label_visibility="collapsed")
-        
-        if uid:
-            if uid.strip() == ADMIN_USERNAME:
-                st.session_state.login_uid_input = uid.strip()
-                st.session_state.login_step = 2
-                st.rerun()
-            else:
-                st.error("Username not found")
-                
-        if st.button("Cancel", use_container_width=True):
-            st.session_state.login_step = 0
-            st.rerun()
-            
-    elif st.session_state.login_step == 2:
-        st.markdown(f"### 🔑 Hi, {st.session_state.login_uid_input}")
-        pwd = st.text_input("Password", type="password", placeholder="Enter Password", key="pwd_field", label_visibility="collapsed")
-        
-        if pwd:
-            if pwd == ADMIN_PASSWORD:
-                st.session_state.is_admin    = True
-                st.session_state.login_step  = 0
-                st.session_state.drawer_open = True
-                st.rerun()
-            else:
-                st.error("Incorrect password")
-                
-        if st.button("← Back", use_container_width=True):
-            st.session_state.login_step = 1
+            st.session_state.is_admin = False
             st.rerun()
     else:
-        if st.button("🔐 Admin Panel", use_container_width=True):
-            st.session_state.login_step = 1
-            st.rerun()
-
-# ── Filtered Data ──────────────────────────────────────────────────────────────
-# Store last applied filter values in session state
-if "applied_filters" not in st.session_state:
-    st.session_state.applied_filters = {
-        "start_date": start_date,
-        "end_date": end_date,
-        "area": sel_area,
-        "category": sel_category,
-        "status": sel_status,
-    }
-
-if apply:
-    st.session_state.applied_filters = {
-        "start_date": start_date,
-        "end_date": end_date,
-        "area": sel_area,
-        "category": sel_category,
-        "status": sel_status,
-    }
-
-af = st.session_state.applied_filters
+        st.markdown("### Admin Access")
+        with st.form("admin_login", clear_on_submit=False):
+            uid = st.text_input("Admin Name", placeholder="Enter Name", label_visibility="collapsed")
+            pwd = st.text_input("Password", type="password", placeholder="Enter Password", label_visibility="collapsed")
+            login = st.form_submit_button("Login", use_container_width=True)
+        if login:
+            if uid.strip() == ADMIN_USERNAME and pwd == ADMIN_PASSWORD:
+                st.session_state.is_admin = True
+                st.rerun()
+            elif uid.strip() != ADMIN_USERNAME:
+                st.error("Username not found")
+            else:
+                st.error("Incorrect password")
+af = {
+    "start_date": start_date,
+    "end_date": end_date,
+    "area": sel_area,
+    "category": sel_category,
+    "status": sel_status,
+}
 df = filter_df(all_df, af["start_date"], af["end_date"], af["area"], af["category"], af["status"])
 
 # ── Analytics ─────────────────────────────────────────────────────────────────
